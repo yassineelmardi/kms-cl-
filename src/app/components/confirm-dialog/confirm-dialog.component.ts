@@ -20,7 +20,9 @@ export interface ConfirmDialogData {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="dialog-header" [ngClass]="'header-' + data.confirmColor">
-      <mat-icon>{{ data.icon }}</mat-icon>
+      <div class="header-icon-wrap" [ngClass]="'icon-' + data.confirmColor">
+        <mat-icon>{{ data.icon }}</mat-icon>
+      </div>
       <h2 mat-dialog-title>{{ data.title }}</h2>
     </div>
 
@@ -33,10 +35,11 @@ export interface ConfirmDialogData {
     </mat-dialog-content>
 
     <mat-dialog-actions align="end">
-      <button mat-stroked-button (click)="onCancel()">Annuler</button>
+      <button mat-stroked-button class="btn-cancel" (click)="onCancel()">Annuler</button>
       <button
         mat-flat-button
         [color]="data.confirmColor"
+        class="btn-confirm"
         (click)="onConfirm()"
       >
         {{ data.confirmLabel }}
@@ -44,44 +47,84 @@ export interface ConfirmDialogData {
     </mat-dialog-actions>
   `,
   styles: [`
+    :host { display: block; }
+
     .dialog-header {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      padding: 1.25rem 1.5rem 0.75rem;
-      border-radius: 4px 4px 0 0;
-
-      h2 { margin: 0; font-size: 1.1rem; font-weight: 600; }
-      mat-icon { font-size: 24px; width: 24px; height: 24px; }
+      gap: 12px;
+      padding: 20px 24px 16px;
+      h2 {
+        margin: 0;
+        padding: 0 !important;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: #0f172a;
+      }
     }
-    .header-warn    { background: #fdecea; color: #b71c1c; }
-    .header-accent  { background: #fff3e0; color: #e65100; }
-    .header-primary { background: #e3f2fd; color: #1565c0; }
+
+    .header-icon-wrap {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+      &.icon-warn   { background: #fef2f2; mat-icon { color: #b91c1c; } }
+      &.icon-accent { background: #fffbeb; mat-icon { color: #b45309; } }
+    }
 
     mat-dialog-content {
-      padding: 1rem 1.5rem !important;
+      padding: 0 24px 16px !important;
+      margin: 0 !important;
+      max-height: none !important;
     }
+
     .dialog-message {
-      color: #555;
-      margin: 0 0 1rem;
+      font-size: 13px;
+      color: #475569;
+      line-height: 1.5;
+      margin: 0 0 12px;
     }
+
     .key-name-box {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      background: #f5f5f5;
-      border: 1px solid #e0e0e0;
+      gap: 8px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
       border-radius: 8px;
-      padding: 0.6rem 1rem;
+      padding: 10px 14px;
+      font-size: 13px;
       font-weight: 600;
-      font-size: 0.95rem;
-      color: #1a237e;
-
-      mat-icon { color: #1565c0; font-size: 18px; width: 18px; height: 18px; }
+      color: #1e3a8a;
+      mat-icon { color: #2563eb; font-size: 16px; width: 16px; height: 16px; }
     }
+
     mat-dialog-actions {
-      padding: 0.75rem 1.5rem 1rem !important;
-      gap: 0.5rem;
+      padding: 12px 24px 20px !important;
+      margin: 0 !important;
+      gap: 8px;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    .btn-cancel {
+      border-radius: 8px !important;
+      font-size: 13px !important;
+      font-weight: 500 !important;
+      color: #475569 !important;
+      border-color: #e2e8f0 !important;
+      height: 36px !important;
+      padding: 0 16px !important;
+    }
+
+    .btn-confirm {
+      border-radius: 8px !important;
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      height: 36px !important;
+      padding: 0 16px !important;
     }
   `],
 })

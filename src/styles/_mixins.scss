@@ -1,0 +1,124 @@
+@use 'tokens' as *;
+
+// ============================================================
+//  MIXINS — KMS Design System
+// ============================================================
+
+// ── Badge / Chip ────────────────────────────────────────────
+@mixin badge($bg, $color, $border: transparent) {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: $radius-full;
+  background: $bg;
+  color: $color;
+  border: 1px solid $border;
+  font-size: $font-xs;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+// ── Card ────────────────────────────────────────────────────
+@mixin card($radius: $radius-lg, $shadow: $shadow-sm) {
+  background: $color-surface;
+  border-radius: $radius;
+  box-shadow: $shadow;
+  border: 1px solid $color-border;
+  overflow: hidden;
+}
+
+// ── Section title ────────────────────────────────────────────
+@mixin section-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: $font-xs;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $color-text-muted;
+  padding: $spacing-sm 0 $spacing-xs;
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: $color-primary-500;
+  }
+}
+
+// ── Input field ──────────────────────────────────────────────
+@mixin field-modern {
+  .mat-mdc-text-field-wrapper {
+    border-radius: $radius-md !important;
+    background: $color-bg !important;
+  }
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: $color-border !important;
+  }
+  &:hover .mdc-notched-outline__leading,
+  &:hover .mdc-notched-outline__trailing,
+  &:hover .mdc-notched-outline__notch {
+    border-color: $color-primary-400 !important;
+  }
+}
+
+// ── Truncate text ─────────────────────────────────────────────
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ── Focus ring ───────────────────────────────────────────────
+@mixin focus-ring($color: $color-primary-500) {
+  outline: 2px solid $color;
+  outline-offset: 2px;
+}
+
+// ── Scrollbar ────────────────────────────────────────────────
+@mixin custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: $color-border transparent;
+
+  &::-webkit-scrollbar { width: 6px; height: 6px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: $color-border;
+    border-radius: $radius-full;
+    &:hover { background: $color-text-muted; }
+  }
+}
+
+// ── Skeleton loader ──────────────────────────────────────────
+@mixin skeleton {
+  background: linear-gradient(90deg, $color-bg 25%, $color-border-light 50%, $color-bg 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+  border-radius: $radius-sm;
+}
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+// ── Fade in ───────────────────────────────────────────────────
+@mixin fade-in($duration: $transition-base) {
+  animation: fade-in $duration ease both;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── Responsive ───────────────────────────────────────────────
+@mixin mobile  { @media (max-width: 640px) { @content; } }
+@mixin tablet  { @media (max-width: 1024px) { @content; } }
+@mixin desktop { @media (min-width: 1025px) { @content; } }

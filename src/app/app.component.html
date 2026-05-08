@@ -1,1 +1,70 @@
-<app-keys-list [applicationId]="1026" />
+<div class="app-shell" [class.collapsed]="sidebarCollapsed()">
+
+  <!-- ── Sidebar ──────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <mat-icon>shield</mat-icon>
+      </div>
+      <span class="brand-name">KMS</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">GESTION</div>
+      <a class="nav-item active">
+        <mat-icon>vpn_key</mat-icon>
+        <span>Clés cryptographiques</span>
+      </a>
+      <a class="nav-item">
+        <mat-icon>apps</mat-icon>
+        <span>Applications</span>
+      </a>
+      <a class="nav-item">
+        <mat-icon>verified_user</mat-icon>
+        <span>Certificats</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="user-avatar">YE</div>
+        <div class="user-info">
+          <span class="user-name">Yassine El-Mardi</span>
+          <span class="user-role">Administrateur</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main area ─────────────────────────────────────────── -->
+  <div class="main-area">
+
+    <!-- Navbar -->
+    <header class="top-navbar">
+      <button mat-icon-button class="menu-btn" (click)="toggleSidebar()" matTooltip="Menu">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <div class="navbar-breadcrumb">
+        <span class="breadcrumb-root">KMS</span>
+        <mat-icon class="breadcrumb-sep">chevron_right</mat-icon>
+        <span class="breadcrumb-current">Clés cryptographiques</span>
+      </div>
+      <div class="navbar-actions">
+        <button mat-icon-button matTooltip="Notifications">
+          <mat-icon>notifications_none</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Paramètres">
+          <mat-icon>settings</mat-icon>
+        </button>
+        <div class="navbar-avatar">YE</div>
+      </div>
+    </header>
+
+    <!-- Page content -->
+    <main class="page-content">
+      <app-keys-list [applicationId]="1026" />
+    </main>
+
+  </div>
+</div>
+

@@ -1,31 +1,178 @@
 @use '@angular/material' as mat;
+@use './styles/tokens' as *;
+@use './styles/mixins' as *;
 
+// ── Material theme ───────────────────────────────────────────
 @include mat.core();
 
-$theme: mat.define-theme((
+$kms-theme: mat.define-theme((
   color: (
     theme-type: light,
-    primary: mat.$azure-palette,
+    primary: mat.$blue-palette,
+    tertiary: mat.$cyan-palette,
   ),
   typography: (
-    brand-family: 'Segoe UI',
+    brand-family: 'Inter',
+    plain-family: 'Inter',
   ),
+  density: (scale: -1),
 ));
 
 html {
-  @include mat.all-component-themes($theme);
+  @include mat.all-component-themes($kms-theme);
 }
 
-/* Global styles */
-* {
+// ── Google Fonts ─────────────────────────────────────────────
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+// ── Reset ────────────────────────────────────────────────────
+*, *::before, *::after {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
+}
+
+// ── Root ─────────────────────────────────────────────────────
+html, body {
+  height: 100%;
+  overflow: hidden;
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f0f2f5;
-  min-height: 100vh;
-  padding: 1rem;
+  font-family: $font-family;
+  font-size: $font-base;
+  color: $color-text-primary;
+  background: $color-bg;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
 }
+
+// ── Material overrides ──────────────────────────────────────
+.mat-mdc-card {
+  border: 1px solid $color-border !important;
+  box-shadow: $shadow-sm !important;
+  border-radius: $radius-lg !important;
+}
+
+.mat-mdc-button, .mat-mdc-raised-button,
+.mat-mdc-stroked-button, .mat-mdc-flat-button {
+  border-radius: $radius-md !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.01em !important;
+  font-size: $font-sm !important;
+}
+
+.mat-mdc-raised-button.mat-primary {
+  background: $color-primary-600 !important;
+  box-shadow: 0 1px 2px rgba(37,99,235,0.3), 0 0 0 1px rgba(37,99,235,0.2) !important;
+  &:hover {
+    background: $color-primary-700 !important;
+    box-shadow: 0 2px 4px rgba(37,99,235,0.4), 0 0 0 1px rgba(37,99,235,0.2) !important;
+  }
+}
+
+.mat-mdc-table {
+  background: $color-surface !important;
+  border-collapse: collapse;
+}
+.mat-mdc-header-row {
+  background: $color-bg !important;
+}
+.mat-mdc-header-cell {
+  font-weight: 600 !important;
+  font-size: $font-xs !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: $color-text-muted !important;
+  border-bottom: 1px solid $color-border !important;
+  padding: 10px 14px !important;
+}
+.mat-mdc-cell {
+  font-size: $font-base !important;
+  color: $color-text-primary !important;
+  border-bottom: 1px solid $color-border-light !important;
+  padding: 10px 14px !important;
+}
+.mat-mdc-row:last-child .mat-mdc-cell {
+  border-bottom: none !important;
+}
+
+.mat-mdc-paginator {
+  background: $color-surface !important;
+  border-top: 1px solid $color-border !important;
+  font-size: $font-sm !important;
+  color: $color-text-secondary !important;
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+}
+.mat-mdc-text-field-wrapper {
+  background: $color-surface !important;
+}
+.mdc-text-field--outlined .mdc-notched-outline__leading,
+.mdc-text-field--outlined .mdc-notched-outline__notch,
+.mdc-text-field--outlined .mdc-notched-outline__trailing {
+  border-color: $color-border !important;
+}
+.mdc-text-field--outlined:hover .mdc-notched-outline__leading,
+.mdc-text-field--outlined:hover .mdc-notched-outline__notch,
+.mdc-text-field--outlined:hover .mdc-notched-outline__trailing {
+  border-color: $color-primary-400 !important;
+}
+.mdc-text-field--focused .mdc-notched-outline__leading,
+.mdc-text-field--focused .mdc-notched-outline__notch,
+.mdc-text-field--focused .mdc-notched-outline__trailing {
+  border-color: $color-primary-600 !important;
+  border-width: 2px !important;
+}
+
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: $radius-xl !important;
+  box-shadow: $shadow-xl !important;
+  border: 1px solid $color-border !important;
+}
+
+.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-color: #{$color-text-primary};
+  --mdc-snackbar-supporting-text-color: #{$color-text-inverse};
+  border-radius: $radius-md !important;
+}
+
+// ── Utility classes ──────────────────────────────────────────
+.text-muted     { color: $color-text-muted; }
+.text-secondary { color: $color-text-secondary; }
+.font-mono {
+  font-family: $font-mono;
+  font-size: $font-xs;
+  background: $color-bg-alt;
+  padding: 2px 7px;
+  border-radius: $radius-sm;
+  border: 1px solid $color-border;
+  color: $color-primary-700;
+}
+
+// ── Badge utilities ──────────────────────────────────────────
+.badge {
+  @include badge($color-neutral-bg, $color-neutral-text, $color-neutral-border);
+
+  &--success { @include badge($color-success-bg, $color-success-text, $color-success-border); }
+  &--warning { @include badge($color-warning-bg, $color-warning-text, $color-warning-border); }
+  &--danger  { @include badge($color-danger-bg,  $color-danger-text,  $color-danger-border);  }
+  &--info    { @include badge($color-info-bg,    $color-info-text,    $color-info-border);    }
+}
+
+// ── Scrollbars ───────────────────────────────────────────────
+* { @include custom-scrollbar; }
+
+// ── Animations ───────────────────────────────────────────────
+@keyframes fade-slide-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
