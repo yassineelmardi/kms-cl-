@@ -179,6 +179,22 @@ export class KeysListComponent implements OnInit {
     this.searchControl.reset('');
   }
 
+  onAddKey(): void {
+    // TODO: ouvrir un dialog ou naviguer vers le formulaire d'ajout
+    alert('Fonctionnalité "Ajouter une clé" à implémenter.');
+  }
+
+  onKeyDeleted(id: number): void {
+    this.selectedKeyId.set(null);
+    // Rafraîchir la liste
+    this.pagination$.next({ ...this.pagination$.value });
+  }
+
+  onKeyDeactivated(id: number): void {
+    // Rafraîchir la liste pour refléter le nouveau statut
+    this.pagination$.next({ ...this.pagination$.value });
+  }
+
   onRowClick(key: KeysListDTO | null): void {
     if (key === null) {
       this.selectedKeyId.set(null);

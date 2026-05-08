@@ -25,6 +25,30 @@
 
     <mat-divider />
 
+    <!-- ── Actions ────────────────────────────────────────────────── -->
+    <mat-card-actions class="card-actions">
+      <button
+        mat-stroked-button
+        color="warn"
+        [disabled]="deleting() || deactivating()"
+        (click)="onDelete()"
+      >
+        <mat-icon>delete_outline</mat-icon>
+        {{ deleting() ? 'Suppression...' : 'Supprimer la clé' }}
+      </button>
+      <button
+        mat-stroked-button
+        color="accent"
+        [disabled]="deactivating() || deleting()"
+        (click)="onDeactivate()"
+      >
+        <mat-icon>block</mat-icon>
+        {{ deactivating() ? 'Désactivation...' : 'Désactiver la clé' }}
+      </button>
+    </mat-card-actions>
+
+    <mat-divider />
+
     <mat-card-content class="detail-content">
 
       <!-- Section: Identité -->

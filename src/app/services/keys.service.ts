@@ -46,4 +46,16 @@ export class KeysService {
       .get<KeyDetailDTO>(`${this.apiUrl}/${id}`)
       .pipe(catchError((error) => throwError(() => error)));
   }
+
+  deleteKey(id: number): Observable<void> {
+    return this.http
+      .delete<void>(`${this.apiUrl}/${id}`)
+      .pipe(catchError((error) => throwError(() => error)));
+  }
+
+  deactivateKey(id: number): Observable<KeyDetailDTO> {
+    return this.http
+      .patch<KeyDetailDTO>(`${this.apiUrl}/${id}/deactivate`, {})
+      .pipe(catchError((error) => throwError(() => error)));
+  }
 }

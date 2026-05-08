@@ -17,8 +17,10 @@
   <mat-card-content>
 
     <!-- ── Search bar ────────────────────────────────────────────── -->
-    <div class="toolbar">
-      <mat-form-field appearance="outline" class="search-field">
+    <div class="toolbar">      <button mat-raised-button color="primary" class="add-btn" (click)="onAddKey()">
+        <mat-icon>add</mat-icon>
+        Ajouter une clé
+      </button>      <mat-form-field appearance="outline" class="search-field">
         <mat-label>Search by name</mat-label>
         <mat-icon matPrefix>search</mat-icon>
         <input
@@ -178,8 +180,12 @@
 </mat-card>
 
 @if (selectedKeyId() !== null) {
-  <div class="detail-side">
-    <app-key-detail [keyId]="selectedKeyId()!" />
+  <div class="detail-side" (click)="$event.stopPropagation()">
+    <app-key-detail
+      [keyId]="selectedKeyId()!"
+      (keyDeleted)="onKeyDeleted($event)"
+      (keyDeactivated)="onKeyDeactivated($event)"
+    />
   </div>
 }
 </div>
