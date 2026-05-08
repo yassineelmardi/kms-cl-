@@ -1,0 +1,25 @@
+<div class="key-generator">
+  <h2>🔐 Générer une nouvelle clé</h2>
+  <form (ngSubmit)="generateKey()">
+    <div class="form-group">
+      <label for="keyName">Nom de la clé</label>
+      <input
+        id="keyName"
+        type="text"
+        [(ngModel)]="keyName"
+        name="keyName"
+        placeholder="Ex: ma-cle-production"
+        required
+      />
+    </div>
+    <div class="form-group">
+      <label for="algorithm">Algorithme</label>
+      <select id="algorithm" [(ngModel)]="selectedAlgorithm" name="algorithm">
+        @for (algo of algorithms; track algo) {
+          <option [value]="algo">{{ algo }}</option>
+        }
+      </select>
+    </div>
+    <button type="submit" [disabled]="!keyName.trim()">Générer la clé</button>
+  </form>
+</div>

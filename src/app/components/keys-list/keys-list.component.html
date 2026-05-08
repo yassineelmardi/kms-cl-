@@ -1,0 +1,185 @@
+<div class="keys-detail-wrapper" (click)="onRowClick(null)">
+<mat-card class="keys-list-card" (click)="$event.stopPropagation()">
+
+  <!-- ── Header ───────────────────────────────────────────────────── -->
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>vpn_key</mat-icon>
+      Keys Management
+    </mat-card-title>
+    <mat-card-subtitle>
+      Application ID: <strong>{{ applicationId() }}</strong>
+      &nbsp;&mdash;&nbsp;
+      <strong>{{ totalElements() }}</strong> key(s) found
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+
+    <!-- ── Search bar ────────────────────────────────────────────── -->
+    <div class="toolbar">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search by name</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input
+          matInput
+          [formControl]="searchControl"
+          placeholder="e.g. Key-Test"
+          autocomplete="off"
+        />
+        @if (searchControl.value) {
+          <button
+            matSuffix
+            mat-icon-button
+            aria-label="Clear"
+            (click)="onSearchClear()"
+            matTooltip="Clear search"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </mat-form-field>
+    </div>
+
+    <!-- ── Error banner ──────────────────────────────────────────── -->
+    @if (error()) {
+      <div class="error-banner" role="alert">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ error() }}</span>
+      </div>
+    }
+
+    <!-- ── Spinner overlay ───────────────────────────────────────── -->
+    <div class="table-container" [class.loading]="loading()">
+
+      @if (loading()) {
+        <div class="spinner-overlay">
+          <mat-spinner diameter="48" />
+        </div>
+      }
+
+      <!-- ── Table ─────────────────────────────────────────────── -->
+      <table
+        mat-table
+        [dataSource]="data()"
+        [trackBy]="trackById"
+        matSort
+        (matSortChange)="onSortChange($event)"
+        class="keys-table"
+        aria-label="Keys list"
+      >
+
+        <!-- id -->
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+          <td mat-cell *matCellDef="let row">{{ row.id }}</td>
+        </ng-container>
+
+        <!-- name -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="key-name">{{ row.name }}</span>
+            <span class="version-badge" matTooltip="Version">v{{ row.version }}</span>
+          </td>
+        </ng-container>
+
+        <!-- algorithm -->
+        <ng-container matColumnDef="algorithm">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Algorithm</th>
+          <td mat-cell *matCellDef="let row">{{ row.algorithm }}</td>
+        </ng-container>
+
+        <!-- sizeOrCurve -->
+        <ng-container matColumnDef="sizeOrCurve">
+          <th mat-header-cell *matHeaderCellDef>Size / Curve</th>
+          <td mat-cell *matCellDef="let row">
+            <code class="mono">{{ row.sizeOrCurve }}</code>
+          </td>
+        </ng-container>
+
+        <!-- status -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="status-chip" [ngClass]="getStatusColor(row.status)">
+              {{ row.status }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- type -->
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+          <td mat-cell *matCellDef="let row">{{ row.type }}</td>
+        </ng-container>
+
+        <!-- certified -->
+        <ng-container matColumnDef="certified">
+          <th mat-header-cell *matHeaderCellDef>Certified</th>
+          <td mat-cell *matCellDef="let row">
+            @if (row.certified) {
+              <mat-icon class="icon-yes" matTooltip="Certified">verified</mat-icon>
+            } @else {
+              <mat-icon class="icon-no" matTooltip="Not certified">cancel</mat-icon>
+            }
+          </td>
+        </ng-container>
+
+        <!-- certificateStatus -->
+        <ng-container matColumnDef="certificateStatus">
+          <th mat-header-cell *matHeaderCellDef>Certificate Status</th>
+          <td mat-cell *matCellDef="let row">
+            <span
+              class="cert-chip"
+              [ngClass]="getCertStatusColor(row.certificateStatus)"
+            >
+              {{ row.certificateStatus }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Rows -->
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns"
+          class="key-row"
+          [class.selected-row]="selectedKeyId() === row.id"
+          (click)="onRowClick(row)"
+        ></tr>
+
+        <!-- No data row -->
+        <tr class="mat-row no-data-row" *matNoDataRow>
+          <td [attr.colspan]="displayedColumns.length">
+            @if (!loading()) {
+              <div class="no-data">
+                <mat-icon>info_outline</mat-icon>
+                <span>No keys found.</span>
+              </div>
+            }
+          </td>
+        </tr>
+
+      </table>
+    </div>
+
+    <!-- ── Paginator ─────────────────────────────────────────────── -->
+    <mat-paginator
+      [length]="totalElements()"
+      [pageSize]="defaultPageSize"
+      [pageSizeOptions]="pageSizeOptions"
+      showFirstLastButtons
+      (page)="onPageChange($event)"
+      aria-label="Select page"
+    />
+
+  </mat-card-content>
+</mat-card>
+
+@if (selectedKeyId() !== null) {
+  <div class="detail-side">
+    <app-key-detail [keyId]="selectedKeyId()!" />
+  </div>
+}
+</div>

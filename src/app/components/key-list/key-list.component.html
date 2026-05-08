@@ -1,0 +1,41 @@
+<div class="key-list">
+  <h2>🔑 Mes Clés Crypto</h2>
+
+  @if (keys$ | async; as keys) {
+    @if (keys.length === 0) {
+      <p class="empty-state">Aucune clé générée. Créez votre première clé !</p>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Algorithme</th>
+            <th>Clé Publique</th>
+            <th>Statut</th>
+            <th>Créée le</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (key of keys; track key.id) {
+            <tr [class.revoked]="key.status === 'revoked'">
+              <td>{{ key.name }}</td>
+              <td>{{ key.algorithm }}</td>
+              <td class="key-value">{{ key.publicKey | slice:0:16 }}...</td>
+              <td>
+                <span class="badge" [class]="key.status">{{ key.status }}</span>
+              </td>
+              <td>{{ key.createdAt | date:'short' }}</td>
+              <td>
+                @if (key.status === 'active') {
+                  <button class="btn-revoke" (click)="revokeKey(key.id)">Révoquer</button>
+                }
+                <button class="btn-delete" (click)="deleteKey(key.id)">Supprimer</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  }
+</div>

@@ -1,0 +1,155 @@
+@if (loading()) {
+  <div class="detail-spinner">
+    <mat-spinner diameter="40" />
+  </div>
+} @else if (error()) {
+  <div class="detail-error">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ error() }}</span>
+  </div>
+} @else {
+  @if (detail(); as d) {
+  <mat-card class="detail-card">
+
+    <!-- Header -->
+    <mat-card-header>
+      <div class="detail-header">
+        <div class="detail-title-row">
+          <mat-icon class="key-icon">vpn_key</mat-icon>
+          <span class="detail-name">{{ d.name }}</span>
+          <span class="status-chip" [ngClass]="getStatusClass(d.status)">{{ d.status }}</span>
+        </div>
+        <span class="detail-id">ID: {{ d.id }} &nbsp;|&nbsp; v{{ d.version }}</span>
+      </div>
+    </mat-card-header>
+
+    <mat-divider />
+
+    <mat-card-content class="detail-content">
+
+      <!-- Section: Identité -->
+      <div class="section-title">
+        <mat-icon>info</mat-icon> Identité
+      </div>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="label">IRN</span>
+          <span class="value">{{ d.irn ?? '—' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">SIA</span>
+          <span class="value">{{ d.sia ?? '—' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Environnement</span>
+          <span class="value">{{ d.environment ?? '—' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Fournisseur</span>
+          <span class="value">{{ d.supplier ?? '—' }}</span>
+        </div>
+        <div class="detail-item full">
+          <span class="label">Description</span>
+          <span class="value">{{ d.description ?? '—' }}</span>
+        </div>
+      </div>
+
+      <mat-divider />
+
+      <!-- Section: Cryptographie -->
+      <div class="section-title">
+        <mat-icon>lock</mat-icon> Cryptographie
+      </div>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="label">Algorithme</span>
+          <span class="value mono">{{ d.algorithm }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Type</span>
+          <span class="value">{{ d.type }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Taille / Courbe</span>
+          <span class="value mono">{{ d.sizeOrCurve }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Template</span>
+          <span class="value">{{ d.templateName ?? '—' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Exportable</span>
+          <span class="value">{{ d.exportable !== null ? d.exportable : '—' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Protocole chiffrement</span>
+          <span class="value">{{ d.encryptionProtocol ?? '—' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Usages</span>
+          <span class="value">{{ d.usage }}</span>
+        </div>
+      </div>
+
+      <mat-divider />
+
+      <!-- Section: Certificat -->
+      <div class="section-title">
+        <mat-icon>verified</mat-icon> Certificat
+      </div>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="label">Certifiée</span>
+          <span class="value">
+            @if (d.certified) {
+              <mat-icon class="icon-yes">verified</mat-icon>
+            } @else {
+              <mat-icon class="icon-no">cancel</mat-icon>
+            }
+          </span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Statut certificat</span>
+          <span class="cert-chip" [ngClass]="getCertClass(d.certificateStatus)">
+            {{ d.certificateStatus }}
+          </span>
+        </div>
+        <div class="detail-item">
+          <span class="label">ID Certificat</span>
+          <span class="value">{{ d.certificateId ?? '—' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Profil certificat</span>
+          <span class="value">{{ d.certificateProfile ?? '—' }}</span>
+        </div>
+      </div>
+
+      <mat-divider />
+
+      <!-- Section: Dates & Permissions -->
+      <div class="section-title">
+        <mat-icon>schedule</mat-icon> Dates & Permissions
+      </div>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="label">Créée le</span>
+          <span class="value">{{ d.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Créée par</span>
+          <span class="value">{{ d.createdBy }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Désactivation</span>
+          <span class="value">{{ d.deactivationDate | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Permissions app.</span>
+          <span class="value">{{ d.applicationPermissions }}</span>
+        </div>
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+  }
+}
