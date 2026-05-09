@@ -2,6 +2,11 @@
 @use './styles/tokens' as *;
 @use './styles/mixins' as *;
 
+// ── Thèmes ───────────────────────────────────────────────────
+@use './styles/themes/theme-default';
+@use './styles/themes/theme-feminine';
+@use './styles/themes/theme-corporate';
+
 // ── Material theme ───────────────────────────────────────────
 @include mat.core();
 
@@ -41,57 +46,59 @@ html, body {
 body {
   font-family: $font-family;
   font-size: $font-base;
-  color: $color-text-primary;
-  background: $color-bg;
+  color: var(--c-text-primary, #{$color-text-primary});
+  background: var(--c-bg, #{$color-bg});
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   letter-spacing: -0.01em;
+  transition: var(--transition-theme, background 0.3s ease, color 0.3s ease);
 }
 
 // ── Material overrides ──────────────────────────────────────
 .mat-mdc-card {
-  border: 1px solid $color-border !important;
-  box-shadow: $shadow-sm !important;
-  border-radius: $radius-lg !important;
+  border: 1px solid var(--c-border, #{$color-border}) !important;
+  box-shadow: var(--card-shadow, #{$shadow-sm}) !important;
+  border-radius: var(--card-radius, #{$radius-lg}) !important;
+  background: var(--c-surface, #fff) !important;
+  transition: var(--transition-theme) !important;
 }
 
 .mat-mdc-button, .mat-mdc-raised-button,
 .mat-mdc-stroked-button, .mat-mdc-flat-button {
-  border-radius: $radius-md !important;
+  border-radius: var(--radius-md, #{$radius-md}) !important;
   font-weight: 500 !important;
   letter-spacing: -0.01em !important;
   font-size: $font-sm !important;
 }
 
 .mat-mdc-raised-button.mat-primary {
-  background: $color-primary-600 !important;
-  box-shadow: 0 1px 2px rgba(37,99,235,0.3), 0 0 0 1px rgba(37,99,235,0.2) !important;
+  background: var(--btn-primary-bg, #{$color-primary-600}) !important;
+  box-shadow: 0 1px 2px var(--btn-primary-shadow, rgba(37,99,235,0.3)), 0 0 0 1px rgba(37,99,235,0.2) !important;
   &:hover {
-    background: $color-primary-700 !important;
-    box-shadow: 0 2px 4px rgba(37,99,235,0.4), 0 0 0 1px rgba(37,99,235,0.2) !important;
+    background: var(--btn-primary-hover, #{$color-primary-700}) !important;
   }
 }
 
 .mat-mdc-table {
-  background: $color-surface !important;
+  background: var(--c-surface, #{$color-surface}) !important;
   border-collapse: collapse;
 }
 .mat-mdc-header-row {
-  background: $color-bg !important;
+  background: var(--table-header-bg, #{$color-bg}) !important;
 }
 .mat-mdc-header-cell {
   font-weight: 600 !important;
   font-size: $font-xs !important;
   text-transform: uppercase !important;
   letter-spacing: 0.06em !important;
-  color: $color-text-muted !important;
-  border-bottom: 1px solid $color-border !important;
+  color: var(--c-text-muted, #{$color-text-muted}) !important;
+  border-bottom: 1px solid var(--c-border, #{$color-border}) !important;
   padding: 10px 14px !important;
 }
 .mat-mdc-cell {
   font-size: $font-base !important;
-  color: $color-text-primary !important;
-  border-bottom: 1px solid $color-border-light !important;
+  color: var(--c-text-primary, #{$color-text-primary}) !important;
+  border-bottom: 1px solid var(--c-border-light, #{$color-border-light}) !important;
   padding: 10px 14px !important;
 }
 .mat-mdc-row:last-child .mat-mdc-cell {
@@ -99,39 +106,38 @@ body {
 }
 
 .mat-mdc-paginator {
-  background: $color-surface !important;
-  border-top: 1px solid $color-border !important;
+  background: var(--c-surface, #{$color-surface}) !important;
+  border-top: 1px solid var(--c-border, #{$color-border}) !important;
   font-size: $font-sm !important;
-  color: $color-text-secondary !important;
+  color: var(--c-text-secondary, #{$color-text-secondary}) !important;
 }
 
-.mat-mdc-form-field {
-  width: 100%;
-}
+.mat-mdc-form-field { width: 100%; }
 .mat-mdc-text-field-wrapper {
-  background: $color-surface !important;
+  background: var(--c-surface, #{$color-surface}) !important;
 }
 .mdc-text-field--outlined .mdc-notched-outline__leading,
 .mdc-text-field--outlined .mdc-notched-outline__notch,
 .mdc-text-field--outlined .mdc-notched-outline__trailing {
-  border-color: $color-border !important;
+  border-color: var(--c-border, #{$color-border}) !important;
 }
 .mdc-text-field--outlined:hover .mdc-notched-outline__leading,
 .mdc-text-field--outlined:hover .mdc-notched-outline__notch,
 .mdc-text-field--outlined:hover .mdc-notched-outline__trailing {
-  border-color: $color-primary-400 !important;
+  border-color: var(--c-primary-400, #{$color-primary-400}) !important;
 }
 .mdc-text-field--focused .mdc-notched-outline__leading,
 .mdc-text-field--focused .mdc-notched-outline__notch,
 .mdc-text-field--focused .mdc-notched-outline__trailing {
-  border-color: $color-primary-600 !important;
+  border-color: var(--c-primary-600, #{$color-primary-600}) !important;
   border-width: 2px !important;
 }
 
 .mat-mdc-dialog-container .mdc-dialog__surface {
-  border-radius: $radius-xl !important;
+  border-radius: var(--dialog-radius, #{$radius-xl}) !important;
   box-shadow: $shadow-xl !important;
-  border: 1px solid $color-border !important;
+  border: 1px solid var(--c-border, #{$color-border}) !important;
+  background: var(--dialog-bg, #fff) !important;
 }
 
 .mat-mdc-snack-bar-container {

@@ -1,0 +1,116 @@
+// ============================================================
+//  THEME: CORPORATE — Noir/Gris, enterprise SaaS ultra-pro
+// ============================================================
+body.theme-corporate {
+  // ── Couleurs primaires (zinc/slate monochrome)
+  --c-primary-50:   #fafafa;
+  --c-primary-100:  #f4f4f5;
+  --c-primary-200:  #e4e4e7;
+  --c-primary-400:  #a1a1aa;
+  --c-primary-500:  #71717a;
+  --c-primary-600:  #52525b;
+  --c-primary-700:  #3f3f46;
+  --c-primary-800:  #27272a;
+  --c-primary-900:  #18181b;
+
+  // ── Surfaces
+  --c-surface:      #ffffff;
+  --c-bg:           #f4f4f5;
+  --c-bg-alt:       #e4e4e7;
+  --c-border:       #d4d4d8;
+  --c-border-light: #e4e4e7;
+
+  // ── Texte
+  --c-text-primary:   #09090b;
+  --c-text-secondary: #3f3f46;
+  --c-text-muted:     #a1a1aa;
+  --c-text-inverse:   #fafafa;
+
+  // ── Sidebar (noir profond Vercel/Linear)
+  --sidebar-bg:          #09090b;
+  --sidebar-text:        #71717a;
+  --sidebar-hover-bg:    rgba(255,255,255,0.05);
+  --sidebar-active-bg:   rgba(255,255,255,0.08);
+  --sidebar-active-color:#fafafa;
+  --sidebar-brand-border: rgba(255,255,255,0.05);
+  --sidebar-footer-border: rgba(255,255,255,0.05);
+
+  // ── Navbar
+  --navbar-bg:     #ffffff;
+  --navbar-border: #e4e4e7;
+  --navbar-shadow: 0 1px 2px rgba(0,0,0,0.06);
+
+  // ── Brand icon
+  --brand-icon-bg: #18181b;
+  --brand-icon-shadow: rgba(0,0,0,0.4);
+
+  // ── Cards
+  --card-shadow:   0 1px 4px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+  --card-radius:   12px;
+
+  // ── Boutons primaire
+  --btn-primary-bg:     #18181b;
+  --btn-primary-hover:  #09090b;
+  --btn-primary-shadow: rgba(0,0,0,0.2);
+
+  // ── Table
+  --table-header-bg:    #f4f4f5;
+  --table-row-hover:    #fafafa;
+  --table-selected-bg:  #f4f4f5;
+  --table-selected-bar: #18181b;
+
+  // ── Dialog
+  --dialog-bg:     #ffffff;
+  --dialog-radius: 12px;
+
+  // ── Snackbar
+  --snackbar-error-bg:      #18181b;
+  --snackbar-error-border:  rgba(239,68,68,0.3);
+  --snackbar-success-bg:    #09150d;
+  --snackbar-success-border: rgba(34,197,94,0.3);
+
+  // ── Border-radius (rectilignes, sharp)
+  --radius-sm:  4px;
+  --radius-md:  8px;
+  --radius-lg:  10px;
+  --radius-xl:  14px;
+
+  --transition-theme: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+// ── Overrides Material spécifiques au thème corporate ────────
+body.theme-corporate {
+  .mat-mdc-raised-button.mat-primary {
+    background: var(--btn-primary-bg) !important;
+    box-shadow: 0 1px 3px var(--btn-primary-shadow) !important;
+    border-radius: 8px !important;
+    &:hover { background: var(--btn-primary-hover) !important; }
+  }
+
+  .mat-mdc-card {
+    border-color: var(--c-border) !important;
+    box-shadow: var(--card-shadow) !important;
+    border-radius: var(--card-radius) !important;
+  }
+
+  .mat-mdc-dialog-container .mdc-dialog__surface {
+    border-radius: var(--dialog-radius) !important;
+    border-color: var(--c-border) !important;
+  }
+
+  .mat-mdc-header-cell {
+    color: var(--c-text-muted) !important;
+    border-bottom-color: var(--c-border) !important;
+    font-size: 11px !important;
+  }
+  .mat-mdc-cell {
+    border-bottom-color: var(--c-border-light) !important;
+    color: var(--c-text-primary) !important;
+  }
+  .mat-mdc-header-row { background: var(--table-header-bg) !important; }
+  .mat-mdc-table { background: var(--c-surface) !important; }
+
+  .mat-mdc-button, .mat-mdc-stroked-button {
+    border-radius: 8px !important;
+  }
+}

@@ -6,17 +6,18 @@
   display: flex;
   height: 100vh;
   overflow: hidden;
-  background: $color-bg;
+  background: var(--c-bg, #{$color-bg});
+  transition: var(--transition-theme, background 0.3s ease);
 }
 
 // ── Sidebar ──────────────────────────────────────────────────
 .sidebar {
   width: $sidebar-width;
   flex-shrink: 0;
-  background: $sidebar-bg;
+  background: var(--sidebar-bg, #{$sidebar-bg});
   display: flex;
   flex-direction: column;
-  transition: width $transition-slow;
+  transition: width $transition-slow, background var(--transition-theme, 0.3s ease);
   overflow: hidden;
   z-index: $z-sidebar;
 
@@ -28,19 +29,20 @@
   align-items: center;
   gap: $spacing-sm;
   padding: 18px $spacing-md;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid var(--sidebar-brand-border, rgba(255,255,255,0.06));
   min-height: $navbar-height;
 
   .brand-icon {
     width: 34px;
     height: 34px;
-    background: $color-primary-600;
-    border-radius: $radius-md;
+    background: var(--brand-icon-bg, #{$color-primary-600});
+    border-radius: var(--radius-md, #{$radius-md});
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(59,130,246,0.4);
+    box-shadow: 0 2px 8px var(--brand-icon-shadow, rgba(59,130,246,0.4));
+    transition: var(--transition-theme);
 
     mat-icon { color: white; font-size: 18px; width: 18px; height: 18px; }
   }
@@ -48,7 +50,7 @@
   .brand-name {
     font-size: $font-lg;
     font-weight: 700;
-    color: $color-text-inverse;
+    color: var(--c-text-inverse, #{$color-text-inverse});
     letter-spacing: -0.02em;
     white-space: nowrap;
     transition: opacity $transition-base;
@@ -85,8 +87,8 @@
   align-items: center;
   gap: $spacing-sm;
   padding: 9px $spacing-sm;
-  border-radius: $radius-md;
-  color: $sidebar-text;
+  border-radius: var(--radius-md, #{$radius-md});
+  color: var(--sidebar-text, #{$sidebar-text});
   cursor: pointer;
   text-decoration: none;
   transition: all $transition-fast;
@@ -109,20 +111,20 @@
   }
 
   &:hover {
-    background: $sidebar-hover-bg;
-    color: $color-text-inverse;
+    background: var(--sidebar-hover-bg, #{$sidebar-hover-bg});
+    color: var(--c-text-inverse, #{$color-text-inverse});
   }
 
   &.active {
-    background: $sidebar-active-bg;
-    color: $color-primary-400;
-    mat-icon { color: $color-primary-400; }
+    background: var(--sidebar-active-bg, #{$sidebar-active-bg});
+    color: var(--sidebar-active-color, #{$color-primary-400});
+    mat-icon { color: var(--sidebar-active-color, #{$color-primary-400}); }
   }
 }
 
 .sidebar-footer {
   padding: $spacing-sm;
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid var(--sidebar-footer-border, rgba(255,255,255,0.06));
 }
 
 .user-card {
@@ -172,12 +174,12 @@
   .user-name {
     font-size: $font-sm;
     font-weight: 600;
-    color: $color-text-inverse;
+    color: var(--c-text-inverse, #{$color-text-inverse});
     @include truncate;
   }
   .user-role {
     font-size: 11px;
-    color: rgba(255,255,255,0.4);
+    color: var(--sidebar-text, rgba(255,255,255,0.4));
     @include truncate;
   }
 }
@@ -194,19 +196,20 @@
 // ── Navbar ───────────────────────────────────────────────────
 .top-navbar {
   height: $navbar-height;
-  background: $navbar-bg;
-  border-bottom: 1px solid $navbar-border;
+  background: var(--navbar-bg, #{$navbar-bg});
+  border-bottom: 1px solid var(--navbar-border, #{$navbar-border});
   display: flex;
   align-items: center;
   gap: $spacing-sm;
   padding: 0 $spacing-md;
   flex-shrink: 0;
   z-index: $z-navbar;
-  box-shadow: $shadow-xs;
+  box-shadow: var(--navbar-shadow, #{$shadow-xs});
+  transition: var(--transition-theme);
 
   .menu-btn {
-    color: $color-text-secondary;
-    &:hover { background: $color-bg-alt; }
+    color: var(--c-text-secondary, #{$color-text-secondary});
+    &:hover { background: var(--c-bg-alt, #{$color-bg-alt}); }
   }
 }
 
@@ -219,18 +222,18 @@
   .breadcrumb-root {
     font-size: $font-sm;
     font-weight: 500;
-    color: $color-text-muted;
+    color: var(--c-text-muted, #{$color-text-muted});
   }
   .breadcrumb-sep {
     font-size: 16px;
     width: 16px;
     height: 16px;
-    color: $color-text-muted;
+    color: var(--c-text-muted, #{$color-text-muted});
   }
   .breadcrumb-current {
     font-size: $font-sm;
     font-weight: 600;
-    color: $color-text-primary;
+    color: var(--c-text-primary, #{$color-text-primary});
   }
 }
 
@@ -239,7 +242,7 @@
   align-items: center;
   gap: 4px;
 
-  button { color: $color-text-secondary; }
+  button { color: var(--c-text-secondary, #{$color-text-secondary}); }
   .navbar-avatar { margin-left: $spacing-xs; cursor: pointer; }
 }
 

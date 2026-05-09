@@ -10,6 +10,8 @@ import {
   TeamProfile,
   TEAM_PROFILES,
 } from './components/team-switcher-dialog/team-switcher-dialog.component';
+import { ThemeSwitcherDialogComponent } from './components/theme-switcher-dialog/theme-switcher-dialog.component';
+import { ThemeService } from './services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -20,6 +22,7 @@ import {
 })
 export class AppComponent {
   private readonly dialog = inject(MatDialog);
+  readonly themeService = inject(ThemeService);
 
   readonly sidebarCollapsed = signal(false);
   readonly activeProfile = signal<TeamProfile>(TEAM_PROFILES[0]);
@@ -33,9 +36,15 @@ export class AppComponent {
       data: { currentProfileId: this.activeProfile().id },
       panelClass: 'kms-dialog-panel',
     }).afterClosed().subscribe((profile: TeamProfile | null) => {
-      if (profile) {
-        this.activeProfile.set(profile);
-      }
+      if (profile) this.activeProfile.set(profile);
+    });
+  }
+
+  openThemeSwitcher(): void {
+    this.dialog.open(ThemeSwitcherDialogComponent, {
+      width: '520px',
+      maxHeight: '90vh',
+      panelClass: 'kms-dialog-panel',
     });
   }
 }
