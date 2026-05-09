@@ -26,12 +26,15 @@
     </nav>
 
     <div class="sidebar-footer">
-      <div class="user-card">
-        <div class="user-avatar">YE</div>
-        <div class="user-info">
-          <span class="user-name">Yassine El-Mardi</span>
-          <span class="user-role">Administrateur</span>
+      <div class="user-card" (click)="openTeamSwitcher()" matTooltip="Changer de profil" matTooltipPosition="right">
+        <div class="user-avatar" [style.background]="activeProfile().avatarGradient">
+          {{ activeProfile().initials }}
         </div>
+        <div class="user-info">
+          <span class="user-name">{{ activeProfile().name }}</span>
+          <span class="user-role">{{ activeProfile().role }}</span>
+        </div>
+        <mat-icon class="user-switch-icon">unfold_more</mat-icon>
       </div>
     </div>
   </aside>
@@ -53,10 +56,16 @@
         <button mat-icon-button matTooltip="Notifications">
           <mat-icon>notifications_none</mat-icon>
         </button>
-        <button mat-icon-button matTooltip="Paramètres">
-          <mat-icon>settings</mat-icon>
+        <button mat-icon-button matTooltip="Changer de profil" (click)="openTeamSwitcher()">
+          <mat-icon>manage_accounts</mat-icon>
         </button>
-        <div class="navbar-avatar">YE</div>
+        <div
+          class="navbar-avatar"
+          [style.background]="activeProfile().avatarGradient"
+          matTooltip="{{ activeProfile().name }}"
+          (click)="openTeamSwitcher()"
+          style="cursor:pointer"
+        >{{ activeProfile().initials }}</div>
       </div>
     </header>
 

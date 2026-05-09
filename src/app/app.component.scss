@@ -134,6 +134,17 @@
   cursor: pointer;
   transition: background $transition-fast;
   &:hover { background: $sidebar-hover-bg; }
+
+  .user-switch-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: rgba(255,255,255,0.3);
+    flex-shrink: 0;
+    margin-left: auto;
+    transition: opacity $transition-base;
+    .app-shell.collapsed & { opacity: 0; }
+  }
 }
 
 .user-avatar, .navbar-avatar {
