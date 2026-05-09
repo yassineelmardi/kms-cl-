@@ -1,0 +1,559 @@
+﻿@use 'styles/tokens' as *;
+@use 'styles/mixins' as *;
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  PAGE LAYOUT
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+.apps-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  padding: $spacing-md $spacing-lg $spacing-sm;
+  gap: 12px;
+  background: var(--c-bg, #{$color-bg});
+  transition: var(--transition-theme, background 0.3s ease);
+}
+
+// â”€â”€ Toolbar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+.apps-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-md;
+  flex-shrink: 0;
+
+  @include mobile { flex-direction: column; }
+}
+
+.toolbar-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  font-size: $font-xl;
+  font-weight: 700;
+  color: var(--c-text-primary, #{$color-text-primary});
+  letter-spacing: -0.03em;
+  margin: 0;
+
+  .title-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+    color: var(--c-primary-600, #{$color-primary-600});
+  }
+}
+
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: $radius-full;
+  background: var(--c-primary-100, #{$color-primary-100});
+  color: var(--c-primary-700, #{$color-primary-700});
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.page-subtitle {
+  font-size: $font-sm;
+  color: var(--c-text-muted, #{$color-text-muted});
+  margin: 0;
+}
+
+.add-btn {
+  height: 36px;
+  border-radius: $radius-md !important;
+  font-size: $font-sm !important;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+// â”€â”€ Filtres â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+.filters-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: $spacing-sm;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+
+  .search-field { flex: 1; min-width: 200px; max-width: 340px; }
+  .filter-field { width: 148px; }
+}
+
+.clear-filters-btn {
+  height: 40px;
+  margin-bottom: 4px;
+  border-radius: $radius-md !important;
+  color: var(--c-text-secondary, #{$color-text-secondary}) !important;
+  font-size: $font-sm !important;
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  GRID â€” 4 cols desktop, 3 medium, 2 tablet, 1 mobile
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+.apps-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-md;
+  align-content: start;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: $spacing-lg;
+  @include custom-scrollbar;
+
+  // â‰¤ 1400px â†’ 3 colonnes
+  @media (max-width: 1400px) { grid-template-columns: repeat(3, 1fr); }
+  // â‰¤ 1024px â†’ 2 colonnes
+  @media (max-width: 1024px) { grid-template-columns: repeat(2, 1fr); }
+  // â‰¤ 640px  â†’ 1 colonne
+  @media (max-width: 640px)  { grid-template-columns: 1fr; }
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  APP CARD â€” hauteur fixe, footer sticky
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+.app-card {
+  background: var(--c-surface, #{$color-surface});
+  border: 1px solid var(--c-border, #{$color-border});
+  border-radius: var(--card-radius, #{$radius-lg});
+  box-shadow: var(--card-shadow, #{$shadow-sm});
+  display: flex;
+  flex-direction: column;
+  min-height: 260px;       // garantit une hauteur minimale cohÃ©rente
+  overflow: hidden;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+    border-color: var(--c-primary-200, #{$color-primary-200});
+  }
+}
+
+// â”€â”€ Card header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 14px 10px;
+  flex-shrink: 0;
+}
+
+.app-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; color: white; }
+
+  &--blue   { background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 2px 8px rgba(37,99,235,0.28); }
+  &--green  { background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 2px 8px rgba(5,150,105,0.28); }
+  &--purple { background: linear-gradient(135deg, #7c3aed, #6d28d9); box-shadow: 0 2px 8px rgba(124,58,237,0.28); }
+  &--gray   { background: linear-gradient(135deg, #64748b, #475569); box-shadow: 0 2px 8px rgba(100,116,139,0.22); }
+}
+
+.card-header-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.app-name {
+  font-size: $font-sm;
+  font-weight: 700;
+  color: var(--c-text-primary, #{$color-text-primary});
+  margin: 0;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  // LimitÃ© Ã  2 lignes + ellipsis
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.app-id {
+  font-size: 11px;
+  color: var(--c-text-muted, #{$color-text-muted});
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.card-header-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.menu-trigger {
+  width: 28px !important;
+  height: 28px !important;
+  line-height: 28px !important;
+  color: var(--c-text-muted, #{$color-text-muted}) !important;
+  opacity: 0;
+  transition: opacity 0.15s;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  .app-card:hover & { opacity: 1; }
+}
+
+// â”€â”€ Status badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: $radius-full;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+
+  .status-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &.status--active {
+    background: $color-success-bg;
+    color: $color-success-text;
+    border: 1px solid $color-success-border;
+    .status-dot { background: $color-success-text; animation: pulse-dot 2s infinite; }
+  }
+  &.status--pending {
+    background: $color-warning-bg;
+    color: $color-warning-text;
+    border: 1px solid $color-warning-border;
+    .status-dot { background: $color-warning-text; }
+  }
+  &.status--draft {
+    background: $color-info-bg;
+    color: $color-info-text;
+    border: 1px solid $color-info-border;
+    .status-dot { background: $color-info-text; }
+  }
+  &.status--inactive, &.status--unknown {
+    background: $color-neutral-bg;
+    color: $color-neutral-text;
+    border: 1px solid $color-neutral-border;
+    .status-dot { background: $color-neutral-text; }
+  }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(21,128,61,0.2); }
+  50%       { box-shadow: 0 0 0 4px rgba(21,128,61,0.06); }
+}
+
+// â”€â”€ Divider â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+mat-divider { flex-shrink: 0; }
+
+// â”€â”€ Card body â€” prend tout l'espace restant â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+.card-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+  padding: 10px 14px;
+  align-content: start;
+  overflow: hidden;       // pas de scroll dans la card, tout doit tenir
+}
+
+.field-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+
+  &.full {
+    grid-column: 1 / -1;
+  }
+}
+
+.field-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--c-text-muted, #{$color-text-muted});
+  white-space: nowrap;
+}
+
+.field-value {
+  font-size: 12px;
+  color: var(--c-text-primary, #{$color-text-primary});
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &.mono {
+    font-family: $font-mono;
+    font-size: 11px;
+    background: var(--c-bg-alt, #{$color-bg-alt});
+    padding: 1px 5px;
+    border-radius: $radius-sm;
+    border: 1px solid var(--c-border-light, #{$color-border-light});
+    color: var(--c-primary-700, #{$color-primary-700});
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.linked-template {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--c-primary-600, #{$color-primary-600}) !important;
+  font-size: 11px !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  mat-icon { font-size: 12px; width: 12px; height: 12px; flex-shrink: 0; }
+}
+
+.no-template {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--c-text-muted, #{$color-text-muted}) !important;
+  font-size: 11px !important;
+  font-style: italic;
+  mat-icon { font-size: 12px; width: 12px; height: 12px; flex-shrink: 0; opacity: 0.5; }
+}
+
+// â”€â”€ Type chip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+.type-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 7px;
+  border-radius: $radius-full;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  mat-icon { font-size: 10px; width: 10px; height: 10px; }
+
+  &.type--internal { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  &.type--external { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+  &.type--partner  { background: #faf5ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+  &.type--unknown  { background: $color-neutral-bg; color: $color-neutral-text; border: 1px solid $color-neutral-border; }
+}
+
+// â”€â”€ Card footer â€” toujours visible, collÃ© en bas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+.card-footer {
+  flex-shrink: 0;           // ne se rÃ©duit jamais
+  display: flex;
+  gap: 6px;
+  padding: 8px 14px 10px;
+  border-top: 1px solid var(--c-border-light, #{$color-border-light});
+  background: var(--c-bg, #{$color-bg});
+}
+
+.action-btn {
+  flex: 1;
+  height: 28px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  border-radius: $radius-md !important;
+  min-width: 0 !important;
+  padding: 0 6px !important;
+  line-height: 28px !important;
+  mat-icon { font-size: 13px; width: 13px; height: 13px; margin-right: 2px; }
+
+  &--view {
+    color: var(--c-primary-600, #{$color-primary-600}) !important;
+    border-color: var(--c-primary-200, #{$color-primary-200}) !important;
+    &:hover { background: var(--c-primary-50, #{$color-primary-50}) !important; }
+  }
+  &--edit {
+    color: var(--c-text-secondary, #{$color-text-secondary}) !important;
+    border-color: var(--c-border, #{$color-border}) !important;
+    &:hover { background: var(--c-bg-alt, #{$color-bg-alt}) !important; }
+  }
+  &--delete {
+    flex: 0 0 auto !important;
+    padding: 0 8px !important;
+  }
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  SKELETON CARDS
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+.skeleton-card {
+  min-height: 260px;
+  pointer-events: none;
+  &:hover { transform: none !important; box-shadow: var(--card-shadow, #{$shadow-sm}) !important; border-color: var(--c-border, #{$color-border}) !important; }
+}
+
+.skeleton-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 14px 10px;
+}
+
+.skeleton-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: $radius-md;
+  @include skeleton;
+  flex-shrink: 0;
+}
+
+.skeleton-lines {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 2px;
+}
+
+.skeleton-badge {
+  width: 52px;
+  height: 18px;
+  border-radius: $radius-full;
+  @include skeleton;
+  flex-shrink: 0;
+}
+
+.skeleton-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  padding: 10px 14px;
+  flex: 1;
+}
+
+.skeleton-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.skeleton-bar {
+  height: 10px;
+  border-radius: $radius-sm;
+  @include skeleton;
+  &--sm  { height: 8px; }
+  &--xs  { height: 6px; }
+}
+
+.skeleton-footer {
+  display: flex;
+  gap: 6px;
+  padding: 8px 14px 10px;
+  border-top: 1px solid var(--c-border-light, #{$color-border-light});
+}
+
+.skeleton-btn {
+  flex: 1;
+  height: 28px;
+  border-radius: $radius-md;
+  @include skeleton;
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  EMPTY STATE
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+.empty-state {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-2xl;
+  gap: $spacing-md;
+  animation: fade-slide-in 0.3s both;
+}
+
+.empty-icon-wrap {
+  width: 68px;
+  height: 68px;
+  border-radius: $radius-xl;
+  background: var(--c-bg-alt, #{$color-bg-alt});
+  border: 1px solid var(--c-border, #{$color-border});
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  mat-icon { font-size: 30px; width: 30px; height: 30px; color: var(--c-text-muted, #{$color-text-muted}); }
+}
+
+.empty-title {
+  font-size: $font-lg;
+  font-weight: 700;
+  color: var(--c-text-primary, #{$color-text-primary});
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.empty-subtitle {
+  font-size: $font-sm;
+  color: var(--c-text-muted, #{$color-text-muted});
+  margin: 0;
+  text-align: center;
+  max-width: 300px;
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  INFINITE SCROLL INDICATORS
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+.load-more-spinner {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  color: var(--c-text-muted, #{$color-text-muted});
+  font-size: $font-sm;
+}
+
+.end-of-list {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: $spacing-md;
+  color: var(--c-text-muted, #{$color-text-muted});
+  font-size: $font-sm;
+  mat-icon { font-size: 15px; width: 15px; height: 15px; color: $color-success-text; }
+}
+
+// â”€â”€ Mat Menu â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+::ng-deep .app-card-menu {
+  .delete-item {
+    color: $color-danger-text !important;
+    mat-icon { color: $color-danger-text !important; }
+  }
+}

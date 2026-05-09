@@ -253,6 +253,18 @@
   @include custom-scrollbar;
 }
 
+.coming-soon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: $spacing-md;
+  color: var(--c-text-muted, #{$color-text-muted});
+  mat-icon { font-size: 48px; width: 48px; height: 48px; opacity: 0.4; }
+  p { font-size: $font-md; font-weight: 500; margin: 0; }
+}
+
 // ── Responsive ───────────────────────────────────────────────
 @include tablet {
   .sidebar {
