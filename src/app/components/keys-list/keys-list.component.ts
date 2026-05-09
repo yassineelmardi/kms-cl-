@@ -5,12 +5,13 @@ import {
   OnInit,
   ViewChild,
   inject,
-  input,
   signal,
+  computed,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Router, ActivatedRoute } from '@angular/router';
 
 import { KeyDetailComponent } from '../key-detail/key-detail.component';
 
@@ -25,6 +26,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCardModule } from '@angular/material/card';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import {
   BehaviorSubject,
@@ -39,7 +41,10 @@ import {
 } from 'rxjs';
 
 import { KeysService } from '../../services/keys.service';
+import { ApplicationsService } from '../../services/applications.service';
+import { ApplicationSelectionService } from '../../services/application-selection.service';
 import { KeysListDTO, PagedKeysListDTO } from '../../models/keys.model';
+import { ApplicationDTO } from '../../models/applications.model';
 
 export const DISPLAYED_COLUMNS = [
   'id',
@@ -69,6 +74,7 @@ export const DISPLAYED_COLUMNS = [
     MatChipsModule,
     MatTooltipModule,
     MatCardModule,
+    MatSnackBarModule,
     KeyDetailComponent,
   ],
   templateUrl: './keys-list.component.html',
@@ -76,41 +82,84 @@ export const DISPLAYED_COLUMNS = [
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class KeysListComponent implements OnInit {
-  // ── Inputs ────────────────────────────────────────────────────────────────
-  readonly applicationId = input.required<number | string>();
+  // â”€â”€ DI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  private readonly keysService      = inject(KeysService);
+  private readonly appsService      = inject(ApplicationsService);
+  private readonly appSelection     = inject(ApplicationSelectionService);
+  private readonly route            = inject(ActivatedRoute);
+  private readonly router           = inject(Router);
+  private readonly snackBar         = inject(MatSnackBar);
+  private readonly destroyRef       = inject(DestroyRef);
 
-  // ── DI ───────────────────────────────────────────────────────────────────
-  private readonly keysService = inject(KeysService);
-  private readonly destroyRef = inject(DestroyRef);
-
-  // ── ViewChild ─────────────────────────────────────────────────────────────
+  // â”€â”€ ViewChild â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  // ── Signals (state) ───────────────────────────────────────────────────────
-  readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
-  readonly data = signal<KeysListDTO[]>([]);
+  // â”€â”€ Resolved application state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  /** ID rÃ©solu depuis l'URL (/applications/:applicationId/keys) */
+  readonly resolvedAppId = signal<number | null>(null);
+  /** Application chargée depuis l'API ou le service de sélection */
+  readonly application   = signal<ApplicationDTO | null>(null);
+  readonly appLoading    = signal(false);
+
+  // â”€â”€ Breadcrumb â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  readonly breadcrumb = computed(() => {
+    const app = this.application();
+    return {
+      appName: app?.name ?? 'â€¦',
+      appStatus: app?.status ?? '',
+      appId: this.resolvedAppId() ?? 0,
+    };
+  });
+
+  // â”€â”€ Signals (state) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  readonly loading       = signal(false);
+  readonly error         = signal<string | null>(null);
+  readonly data          = signal<KeysListDTO[]>([]);
   readonly totalElements = signal(0);
   readonly selectedKeyId = signal<number | null>(null);
 
-  // ── Table config ──────────────────────────────────────────────────────────
-  readonly displayedColumns = [...DISPLAYED_COLUMNS];
-  readonly pageSizeOptions = [10, 20, 50];
-  readonly defaultPageSize = 20;
+  // â”€â”€ Table config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  readonly displayedColumns  = [...DISPLAYED_COLUMNS];
+  readonly pageSizeOptions   = [10, 20, 50];
+  readonly defaultPageSize   = 20;
 
-  // ── Reactive controls ─────────────────────────────────────────────────────
+  // â”€â”€ Reactive controls â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   readonly searchControl = new FormControl<string>('', { nonNullable: true });
 
   private readonly pagination$ = new BehaviorSubject<{ page: number; size: number }>({
     page: 0,
     size: this.defaultPageSize,
   });
-
   private readonly sort$ = new BehaviorSubject<Sort>({ active: '', direction: '' });
 
-  // ── Lifecycle ─────────────────────────────────────────────────────────────
+  // â”€â”€ Lifecycle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   ngOnInit(): void {
+    // Résoudre l'applicationId depuis l'URL
+    const paramId = this.route.snapshot.paramMap.get('applicationId');
+    if (paramId) {
+      const id = Number(paramId);
+      if (isNaN(id)) {
+        this.snackBar.open('Application introuvable.', 'Fermer', { duration: 4000 });
+        this.router.navigate(['/applications']);
+        return;
+      }
+      this.resolvedAppId.set(id);
+      this.loadApplication(id);
+    } else {
+      // Compatibilité descendante : utiliser le service de sélection
+      const selected = this.appSelection.selectedApp();
+      if (selected) {
+        this.resolvedAppId.set(selected.id);
+        this.application.set(selected);
+      } else {
+        this.snackBar.open('Veuillez sélectionner une application.', 'Fermer', { duration: 4000 });
+        this.router.navigate(['/applications']);
+        return;
+      }
+    }
+
+    // Démarrer le flux de données
     combineLatest([
       this.searchControl.valueChanges.pipe(
         startWith(''),
@@ -128,7 +177,7 @@ export class KeysListComponent implements OnInit {
         switchMap(([name, { page, size }, sortState]) =>
           this.keysService
             .getKeys({
-              applicationId: this.applicationId(),
+              applicationId: this.resolvedAppId()!,
               page,
               size,
               name: name ?? '',
@@ -140,8 +189,7 @@ export class KeysListComponent implements OnInit {
             })
             .pipe(
               catchError((err) => {
-                const msg =
-                  err?.error?.message ?? err?.message ?? 'An unexpected error occurred.';
+                const msg = err?.error?.message ?? err?.message ?? 'Erreur inattendue.';
                 this.error.set(msg);
                 return of<PagedKeysListDTO>({
                   content: [],
@@ -164,13 +212,44 @@ export class KeysListComponent implements OnInit {
       .subscribe();
   }
 
-  // ── Event handlers ────────────────────────────────────────────────────────
+  // â”€â”€ Navigation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  goBackToApplications(): void {
+    this.router.navigate(['/applications']);
+  }
+
+  // â”€â”€ Application loader â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  private loadApplication(id: number): void {
+    // Utiliser d'abord le service de sélection (évite un appel HTTP supplémentaire)
+    const cached = this.appSelection.selectedApp();
+    if (cached && cached.id === id) {
+      this.application.set(cached);
+      return;
+    }
+
+    this.appLoading.set(true);
+    this.appsService.getApplicationById(id).pipe(
+      catchError(() => {
+        this.snackBar.open(`Application ID ${id} introuvable.`, 'Fermer', { duration: 5000 });
+        this.router.navigate(['/applications']);
+        return of(null);
+      }),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(app => {
+      if (app) {
+        // ApplicationDetailDTO â†’ cast partiel vers ApplicationDTO pour le breadcrumb
+        this.application.set({ id: app.id, name: app.name, irn: app.irn, sia: app.sia, ipn: '', status: app.status ?? 'Unknown', type: '', linkedToKeyTemplate: null });
+        this.appSelection.selectApp({ id: app.id, name: app.name, irn: app.irn, sia: app.sia, ipn: '', status: app.status ?? 'Unknown', type: '', linkedToKeyTemplate: null });
+      }
+      this.appLoading.set(false);
+    });
+  }
+
+  // â”€â”€ Event handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   onPageChange(event: PageEvent): void {
     this.pagination$.next({ page: event.pageIndex, size: event.pageSize });
   }
 
   onSortChange(sortState: Sort): void {
-    // Reset to page 0 when sort changes
     this.pagination$.next({ ...this.pagination$.value, page: 0 });
     this.sort$.next(sortState);
   }
@@ -180,53 +259,48 @@ export class KeysListComponent implements OnInit {
   }
 
   onAddKey(): void {
-    // TODO: ouvrir un dialog ou naviguer vers le formulaire d'ajout
-    alert('Fonctionnalité "Ajouter une clé" à implémenter.');
+    alert('Fonctionnalité "Ajouter une clé" Ã  implÃ©menter.');
   }
 
   onKeyDeleted(id: number): void {
     this.selectedKeyId.set(null);
-    // Rafraîchir la liste
     this.pagination$.next({ ...this.pagination$.value });
   }
 
   onKeyDeactivated(id: number): void {
-    // Rafraîchir la liste pour refléter le nouveau statut
     this.pagination$.next({ ...this.pagination$.value });
   }
 
   onRowClick(key: KeysListDTO | null): void {
-    if (key === null) {
-      this.selectedKeyId.set(null);
-      return;
-    }
-    this.selectedKeyId.set(
-      this.selectedKeyId() === key.id ? null : key.id
-    );
+    if (key === null) { this.selectedKeyId.set(null); return; }
+    this.selectedKeyId.set(this.selectedKeyId() === key.id ? null : key.id);
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
-  trackById(_: number, key: KeysListDTO): number {
-    return key.id;
-  }
+  // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  trackById(_: number, key: KeysListDTO): number { return key.id; }
 
   getStatusColor(status: string): string {
     const map: Record<string, string> = {
-      ACTIVE: 'status-active',
-      REVOKED: 'status-revoked',
-      EXPIRED: 'status-expired',
-      PENDING: 'status-pending',
+      ACTIVE: 'status-active', REVOKED: 'status-revoked',
+      EXPIRED: 'status-expired', PENDING: 'status-pending',
     };
     return map[status] ?? 'status-unknown';
   }
 
   getCertStatusColor(status: string): string {
     const map: Record<string, string> = {
-      VALID: 'cert-valid',
-      EXPIRED: 'cert-expired',
-      REVOKED: 'cert-revoked',
-      NONE: 'cert-none',
+      VALID: 'cert-valid', EXPIRED: 'cert-expired',
+      REVOKED: 'cert-revoked', NONE: 'cert-none',
     };
     return map[status] ?? 'cert-none';
   }
+
+  getStatusBadgeClass(status: string): string {
+    const s = status?.toLowerCase();
+    if (s === 'active')   return 'status--active';
+    if (s === 'pending')  return 'status--pending';
+    if (s === 'inactive') return 'status--inactive';
+    return 'status--unknown';
+  }
 }
+

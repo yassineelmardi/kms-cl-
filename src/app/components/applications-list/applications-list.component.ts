@@ -21,6 +21,7 @@ import {
   of,
 } from 'rxjs';
 import { animate, style, transition, trigger } from '@angular/animations';
+import { Router } from '@angular/router';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -36,6 +37,7 @@ import { MatChipsModule } from '@angular/material/chips';
 
 import { ApplicationsService } from '../../services/applications.service';
 import { NotificationService } from '../../services/notification.service';
+import { ApplicationSelectionService } from '../../services/application-selection.service';
 import { ApplicationDTO } from '../../models/applications.model';
 import { ApplicationDetailComponent } from '../application-detail/application-detail.component';
 
@@ -81,6 +83,8 @@ import { ApplicationDetailComponent } from '../application-detail/application-de
 export class ApplicationsListComponent implements OnInit {
   private readonly appsService   = inject(ApplicationsService);
   private readonly notif         = inject(NotificationService);
+  private readonly appSelection  = inject(ApplicationSelectionService);
+  private readonly router        = inject(Router);
   private readonly destroyRef    = inject(DestroyRef);
 
   @ViewChild('gridContainer') gridRef!: ElementRef<HTMLDivElement>;
@@ -193,7 +197,8 @@ export class ApplicationsListComponent implements OnInit {
 
   onViewKeys(app: ApplicationDTO, event?: Event): void {
     event?.stopPropagation();
-    this.notif.showSuccess(`Clés de l'application ID ${app.id}`);
+    this.appSelection.selectApp(app);
+    this.router.navigate(['/applications', app.id, 'keys']);
   }
 
   // ── Styling helpers ────────────────────────────────────────

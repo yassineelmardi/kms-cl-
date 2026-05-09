@@ -224,6 +224,10 @@
 
               <!-- Footer -->
               <div class="card-footer">
+                <button mat-flat-button class="action-btn action-btn--keys" (click)="onViewKeys(app, $event)">
+                  <mat-icon>vpn_key</mat-icon>
+                  Clés
+                </button>
                 <button mat-stroked-button class="action-btn action-btn--view" (click)="onView(app, $event)">
                   <mat-icon>open_in_new</mat-icon>
                   Détails
@@ -232,7 +236,12 @@
                   <mat-icon>edit</mat-icon>
                   Modifier
                 </button>
-                <button mat-stroked-button color="warn" class="action-btn action-btn--delete" (click)="onDelete(app, $event)">
+                <button
+                  mat-icon-button
+                  class="action-btn action-btn--delete"
+                  matTooltip="Supprimer l'application"
+                  matTooltipPosition="above"
+                  (click)="onDelete(app, $event)">
                   <mat-icon>delete_outline</mat-icon>
                 </button>
               </div>

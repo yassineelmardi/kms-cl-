@@ -1,130 +1,265 @@
-@use 'styles/tokens' as *;
+﻿@use 'styles/tokens' as *;
 @use 'styles/mixins' as *;
 
-// ── Wrapper ──────────────────────────────────────────────────
-.keys-detail-wrapper {
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  KEYS PAGE â€” layout principal
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+.keys-page {
   display: flex;
-  align-items: flex-start;
-  gap: $spacing-md;
-  padding: $spacing-md;
+  flex-direction: column;
   height: 100%;
   overflow: hidden;
+}
 
-  @include tablet {
-    flex-direction: column;
-    overflow-y: auto;
-    height: auto;
+// â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+.keys-header {
+  flex-shrink: 0;
+  padding: $spacing-md $spacing-lg 0;
+  background: var(--c-surface, #{$color-surface});
+  border-bottom: 1px solid var(--c-border, #{$color-border});
+}
+
+// â”€â”€ Breadcrumb â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: $spacing-md;
+  flex-wrap: wrap;
+}
+
+.breadcrumb-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: $font-sm !important;
+  font-weight: 500 !important;
+  color: var(--c-primary-600, #{$color-primary-600}) !important;
+  padding: 2px 8px !important;
+  height: 28px !important;
+  border-radius: $radius-md !important;
+  transition: background 0.12s ease !important;
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+  &:hover { background: var(--c-primary-50, #{$color-primary-50}) !important; }
+}
+
+.breadcrumb-sep {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--c-text-muted, #{$color-text-muted});
+  flex-shrink: 0;
+}
+
+.breadcrumb-current {
+  font-size: $font-sm;
+  font-weight: 600;
+  color: var(--c-text-primary, #{$color-text-primary});
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.breadcrumb-skeleton {
+  display: inline-block;
+  width: 120px;
+  height: 16px;
+  border-radius: $radius-sm;
+  @include skeleton;
+}
+
+.breadcrumb-page {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: $font-sm;
+  font-weight: 600;
+  color: var(--c-text-secondary, #{$color-text-secondary});
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+}
+
+// â”€â”€ App status badge dans le breadcrumb â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+.app-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: $radius-full;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  &.status--active  {
+    background: var(--c-success-bg, #{$color-success-bg});
+    color: var(--c-success-text, #{$color-success-text});
+    border: 1px solid var(--c-success-border, #{$color-success-border});
+  }
+  &.status--pending {
+    background: var(--c-warning-bg, #{$color-warning-bg});
+    color: var(--c-warning-text, #{$color-warning-text});
+    border: 1px solid var(--c-warning-border, #{$color-warning-border});
+  }
+  &.status--inactive, &.status--unknown {
+    background: var(--c-bg-alt, #{$color-bg-alt});
+    color: var(--c-text-muted, #{$color-text-muted});
+    border: 1px solid var(--c-border, #{$color-border});
   }
 }
 
-.keys-list-card {
+// â”€â”€ Toolbar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+.keys-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.back-btn {
+  color: var(--c-text-secondary, #{$color-text-secondary}) !important;
+  transition: color 0.15s ease, background 0.15s ease !important;
+  &:hover {
+    color: var(--c-primary-600, #{$color-primary-600}) !important;
+    background: var(--c-primary-50, #{$color-primary-50}) !important;
+  }
+}
+
+.title-group { display: flex; flex-direction: column; gap: 2px; }
+
+.page-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--c-text-primary, #{$color-text-primary});
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .title-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: var(--c-primary-600, #{$color-primary-600});
+  }
+}
+
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 20px;
+  padding: 0 7px;
+  background: var(--c-primary-100, #{$color-primary-100});
+  color: var(--c-primary-700, #{$color-primary-700});
+  border-radius: $radius-full;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.page-subtitle {
+  margin: 0;
+  font-size: $font-sm;
+  color: var(--c-text-secondary, #{$color-text-secondary});
+
+  strong { color: var(--c-text-primary, #{$color-text-primary}); }
+}
+
+.skeleton-text {
+  width: 200px;
+  height: 14px;
+  border-radius: $radius-sm;
+  @include skeleton;
+}
+
+.add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 $spacing-md !important;
+  background: var(--c-primary-600, #{$color-primary-600}) !important;
+  color: white !important;
+  border-radius: $radius-md !important;
+  font-size: $font-sm !important;
+  font-weight: 600 !important;
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(37,99,235,0.3) !important;
+  transition: all 0.12s ease !important;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  &:hover {
+    background: var(--c-primary-700, #{$color-primary-700}) !important;
+    box-shadow: 0 4px 10px rgba(37,99,235,0.4) !important;
+    transform: translateY(-1px);
+  }
+  &:active { transform: translateY(0); }
+}
+
+// â”€â”€ Filters bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+.filters-bar {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding-bottom: $spacing-sm;
+
+  .search-field {
+    width: 340px;
+    .mat-mdc-text-field-wrapper { background: var(--c-bg, #{$color-bg}) !important; border-radius: $radius-md !important; }
+    .mat-mdc-form-field-subscript-wrapper { display: none; }
+  }
+}
+
+// â”€â”€ Master-Detail layout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+.master-detail-layout {
+  display: flex;
+  flex: 1;
+  gap: 0;
+  overflow: hidden;
+}
+
+.table-panel {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-radius: $radius-lg !important;
-  border: 1px solid $color-border !important;
-  box-shadow: $shadow-sm !important;
-  background: $color-surface !important;
-  animation: fade-slide-in 0.2s both;
-
-  mat-card-header {
-    padding: $spacing-md $spacing-lg;
-    border-bottom: 1px solid $color-border;
-    background: $color-surface;
-  }
-  mat-card-title {
-    display: flex;
-    align-items: center;
-    gap: $spacing-sm;
-    font-size: $font-md !important;
-    font-weight: 700 !important;
-    color: $color-text-primary !important;
-    letter-spacing: -0.02em;
-    mat-icon { font-size: 20px; width: 20px; height: 20px; color: $color-primary-600; }
-  }
-  mat-card-subtitle {
-    font-size: $font-sm !important;
-    color: $color-text-secondary !important;
-    margin-top: 2px !important;
-  }
-  mat-card-content {
-    padding: $spacing-md $spacing-lg 0 !important;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
+  padding: $spacing-md $spacing-lg $spacing-lg;
 }
 
 .detail-side {
   width: 420px;
   flex-shrink: 0;
-  position: sticky;
-  top: 0;
-  max-height: calc(100vh - #{$navbar-height} - #{$spacing-md} * 2);
+  border-left: 1px solid var(--c-border, #{$color-border});
   overflow-y: auto;
   @include custom-scrollbar;
   animation: fade-slide-in 0.2s both;
 
-  @include tablet {
-    width: 100%;
-    position: static;
-    max-height: none;
-  }
+  @include tablet { width: 100%; border-left: none; border-top: 1px solid var(--c-border, #{$color-border}); }
 }
 
-// ── Toolbar ──────────────────────────────────────────────────
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: $spacing-sm;
-  margin-bottom: $spacing-md;
-
-  .add-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    height: 38px;
-    padding: 0 $spacing-md;
-    background: $color-primary-600 !important;
-    color: white !important;
-    border-radius: $radius-md !important;
-    font-size: $font-sm !important;
-    font-weight: 600 !important;
-    border: none !important;
-    box-shadow: 0 1px 3px rgba(37,99,235,0.3) !important;
-    transition: all 0.12s ease !important;
-    white-space: nowrap;
-    flex-shrink: 0;
-    mat-icon { font-size: 16px; width: 16px; height: 16px; }
-    &:hover {
-      background: $color-primary-700 !important;
-      box-shadow: 0 4px 10px rgba(37,99,235,0.4) !important;
-      transform: translateY(-1px);
-    }
-    &:active { transform: translateY(0); }
-  }
-
-  .search-field {
-    flex: 1;
-    max-width: 360px;
-    margin-left: auto;
-
-    .mat-mdc-text-field-wrapper { background: $color-bg !important; border-radius: $radius-md !important; }
-    .mat-mdc-form-field-subscript-wrapper { display: none; }
-  }
-}
-
-// ── Error banner ─────────────────────────────────────────────
+// â”€â”€ Error banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 .error-banner {
   display: flex;
   align-items: center;
   gap: $spacing-sm;
-  background: $color-danger-bg;
-  color: $color-danger-text;
-  border: 1px solid $color-danger-border;
+  background: var(--c-danger-bg, #{$color-danger-bg});
+  color: var(--c-danger-text, #{$color-danger-text});
+  border: 1px solid var(--c-danger-border, #{$color-danger-border});
   border-radius: $radius-md;
   padding: 10px $spacing-md;
   margin-bottom: $spacing-md;
@@ -133,10 +268,10 @@
   mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; }
 }
 
-// ── Table container ──────────────────────────────────────────
+// â”€â”€ Table container â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 .table-container {
   position: relative;
-  border: 1px solid $color-border;
+  border: 1px solid var(--c-border, #{$color-border});
   border-radius: $radius-md;
   overflow: auto;
   flex: 1;
@@ -159,22 +294,18 @@
 
 .keys-table { width: 100%; min-width: 780px; }
 
-// ── Row ──────────────────────────────────────────────────────
+// â”€â”€ Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 .key-row {
   cursor: pointer;
   transition: background 0.12s ease;
 
-  &:hover .mat-mdc-cell    { background: $color-primary-50 !important; }
-  &.selected-row .mat-mdc-cell { background: $color-primary-100 !important; }
-  &.selected-row .mat-mdc-cell:first-child { box-shadow: inset 3px 0 0 $color-primary-600; }
+  &:hover .mat-mdc-cell { background: var(--c-primary-50, #{$color-primary-50}) !important; }
+  &.selected-row .mat-mdc-cell { background: var(--c-primary-100, #{$color-primary-100}) !important; }
+  &.selected-row .mat-mdc-cell:first-child { box-shadow: inset 3px 0 0 var(--c-primary-600, #{$color-primary-600}); }
 }
 
-// ── Cell helpers ─────────────────────────────────────────────
-.key-name {
-  font-weight: 600;
-  font-size: $font-sm;
-  color: $color-text-primary;
-}
+// â”€â”€ Cell helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+.key-name { font-weight: 600; font-size: $font-sm; color: var(--c-text-primary, #{$color-text-primary}); }
 
 .version-badge {
   display: inline-flex;
@@ -183,24 +314,24 @@
   padding: 1px 7px;
   font-size: 10px;
   font-weight: 600;
-  background: $color-bg-alt;
-  border: 1px solid $color-border;
+  background: var(--c-bg-alt, #{$color-bg-alt});
+  border: 1px solid var(--c-border, #{$color-border});
   border-radius: $radius-full;
-  color: $color-text-muted;
+  color: var(--c-text-muted, #{$color-text-muted});
   vertical-align: middle;
 }
 
 .mono {
   font-family: $font-mono;
   font-size: $font-xs;
-  background: $color-bg-alt;
+  background: var(--c-bg-alt, #{$color-bg-alt});
   padding: 2px 7px;
   border-radius: $radius-sm;
-  border: 1px solid $color-border;
-  color: $color-primary-700;
+  border: 1px solid var(--c-border, #{$color-border});
+  color: var(--c-primary-700, #{$color-primary-700});
 }
 
-// ── Status badges ────────────────────────────────────────────
+// â”€â”€ Status badges â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 .status-chip {
   @include badge($color-neutral-bg, $color-neutral-text, $color-neutral-border);
   &.status-active  { @include badge($color-success-bg, $color-success-text, $color-success-border); }
@@ -221,9 +352,8 @@
 .icon-yes { color: $color-success-text; font-size: 18px; width: 18px; height: 18px; }
 .icon-no  { color: $color-danger-text;  font-size: 18px; width: 18px; height: 18px; }
 
-// ── No data ──────────────────────────────────────────────────
+// â”€â”€ No data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 .no-data-row td { border: none !important; }
-
 .no-data {
   display: flex;
   flex-direction: column;
@@ -231,20 +361,14 @@
   justify-content: center;
   gap: $spacing-sm;
   padding: 3rem;
-  color: $color-text-muted;
-
+  color: var(--c-text-muted, #{$color-text-muted});
   mat-icon { font-size: 40px; width: 40px; height: 40px; opacity: 0.35; }
   span { font-size: $font-sm; }
 }
 
 mat-paginator {
-  border-top: 1px solid $color-border !important;
+  border-top: 1px solid var(--c-border, #{$color-border}) !important;
   border-radius: 0 0 $radius-md $radius-md !important;
-  background: $color-bg !important;
-}
-
-@include mobile {
-  .keys-list-card mat-card-content { padding: $spacing-sm !important; }
-  .toolbar { flex-wrap: wrap; .search-field { max-width: 100%; } }
+  background: var(--c-bg, #{$color-bg}) !important;
 }
 

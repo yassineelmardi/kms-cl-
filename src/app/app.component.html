@@ -11,15 +11,15 @@
 
     <nav class="sidebar-nav">
       <div class="nav-section-label">GESTION</div>
-      <a class="nav-item" [class.active]="activePage() === 'keys'" (click)="navigateTo('keys')">
+      <a class="nav-item" routerLink="/applications/1026/keys" routerLinkActive="active">
         <mat-icon>vpn_key</mat-icon>
         <span>Clés cryptographiques</span>
       </a>
-      <a class="nav-item" [class.active]="activePage() === 'applications'" (click)="navigateTo('applications')">
+      <a class="nav-item" routerLink="/applications" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <mat-icon>apps</mat-icon>
         <span>Applications</span>
       </a>
-      <a class="nav-item" [class.active]="activePage() === 'certificates'" (click)="navigateTo('certificates')">
+      <a class="nav-item" routerLink="/certificates" routerLinkActive="active">
         <mat-icon>verified_user</mat-icon>
         <span>Certificats</span>
       </a>
@@ -51,11 +51,7 @@
         <span class="breadcrumb-root">KMS</span>
         <mat-icon class="breadcrumb-sep">chevron_right</mat-icon>
         <span class="breadcrumb-current">
-          @switch (activePage()) {
-            @case ('keys') { Clés cryptographiques }
-            @case ('applications') { Applications }
-            @case ('certificates') { Certificats }
-          }
+          Crypto Key Manager
         </span>
       </div>
       <div class="navbar-actions">
@@ -81,20 +77,7 @@
 
     <!-- Page content -->
     <main class="page-content">
-      @switch (activePage()) {
-        @case ('keys') {
-          <app-keys-list [applicationId]="1026" />
-        }
-        @case ('applications') {
-          <app-applications-list />
-        }
-        @case ('certificates') {
-          <div class="coming-soon">
-            <mat-icon>verified_user</mat-icon>
-            <p>Page Certificats — à venir</p>
-          </div>
-        }
-      }
+      <router-outlet />
     </main>
 
   </div>

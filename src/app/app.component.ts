@@ -1,11 +1,10 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { KeysListComponent } from './components/keys-list/keys-list.component';
-import { ApplicationsListComponent } from './components/applications-list/applications-list.component';
 import { EnvBadgeComponent } from './components/env-badge/env-badge.component';
 import {
   TeamSwitcherDialogComponent,
@@ -15,19 +14,18 @@ import {
 import { ThemeSwitcherDialogComponent } from './components/theme-switcher-dialog/theme-switcher-dialog.component';
 import { ThemeService } from './services/theme.service';
 
-export type ActivePage = 'keys' | 'applications' | 'certificates';
-
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
     CommonModule,
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
     MatIconModule,
     MatButtonModule,
     MatTooltipModule,
     MatDialogModule,
-    KeysListComponent,
-    ApplicationsListComponent,
     EnvBadgeComponent,
   ],
   templateUrl: './app.component.html',
@@ -35,15 +33,13 @@ export type ActivePage = 'keys' | 'applications' | 'certificates';
 })
 export class AppComponent {
   private readonly dialog = inject(MatDialog);
-  readonly themeService = inject(ThemeService);
+  readonly themeService   = inject(ThemeService);
+  private readonly router = inject(Router);
 
   readonly sidebarCollapsed = signal(false);
   readonly activeProfile    = signal<TeamProfile>(TEAM_PROFILES[0]);
-  readonly activePage       = signal<ActivePage>('keys');
 
   toggleSidebar(): void { this.sidebarCollapsed.update(v => !v); }
-
-  navigateTo(page: ActivePage): void { this.activePage.set(page); }
 
   openTeamSwitcher(): void {
     this.dialog.open(TeamSwitcherDialogComponent, {
