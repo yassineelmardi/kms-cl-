@@ -12,6 +12,26 @@ export interface ApplicationDTO {
   linkedToKeyTemplate: string | null;
 }
 
+export interface ApplicationDetailDTO {
+  id: number;
+  name: string;
+  irn: string;
+  sia: string;
+  ipn: string;
+  applicationOwnerIPN: string;
+  type: AppType;
+  organization: string;
+  contactEmail: string;
+  mailingList: string;
+  description: string;
+  status: AppStatus;
+  numberOfValidation: number;
+  roles: string[];
+  permissions: string[];
+  createdAt: string | null;
+  createdBy: string | null;
+}
+
 export interface ApplicationsQueryParams {
   page?: number;
   size?: number;

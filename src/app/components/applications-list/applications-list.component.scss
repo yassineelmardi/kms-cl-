@@ -1,4 +1,4 @@
-﻿@use 'styles/tokens' as *;
+@use 'styles/tokens' as *;
 @use 'styles/mixins' as *;
 
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -13,6 +13,63 @@
   gap: 12px;
   background: var(--c-bg, #{$color-bg});
   transition: var(--transition-theme, background 0.3s ease);
+}
+
+// ── Header (toolbar + filters) — ne scroll pas ────────────────
+.apps-header {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+// ════════════════════════════════════════════════════════════
+//  MASTER-DETAIL LAYOUT
+// ════════════════════════════════════════════════════════════
+.master-detail-layout {
+  flex: 1;
+  display: flex;
+  gap: 0;
+  overflow: hidden;
+  border-radius: var(--card-radius, #{$radius-lg});
+  border: 1px solid var(--c-border, #{$color-border});
+  background: var(--c-surface, #{$color-surface});
+  box-shadow: var(--card-shadow, #{$shadow-sm});
+}
+
+// ── Master panel (gauche, scrollable) ─────────────────────────
+.master-panel {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: $spacing-md;
+  @include custom-scrollbar;
+  transition: flex $transition-slow;
+
+  &.detail-open {
+    // Réduire légèrement le ratio quand le détail est ouvert
+    flex: 1 1 0;
+  }
+}
+
+// ── Detail panel wrap (droite, sticky) ────────────────────────
+.detail-panel-wrap {
+  flex: 0 0 380px;
+  width: 380px;
+  min-width: 340px;
+  overflow: hidden;
+  border-left: 1px solid var(--c-border, #{$color-border});
+  background: var(--c-surface, #{$color-surface});
+
+  // Responsive : drawer plein écran sur mobile
+  @media (max-width: 768px) {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    flex: none;
+    z-index: $z-modal;
+    box-shadow: $shadow-xl;
+  }
 }
 
 // â”€â”€ Toolbar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -102,21 +159,14 @@
 //  GRID â€” 4 cols desktop, 3 medium, 2 tablet, 1 mobile
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 .apps-grid {
-  flex: 1;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: $spacing-md;
   align-content: start;
-  overflow-y: auto;
-  overflow-x: hidden;
   padding-bottom: $spacing-lg;
-  @include custom-scrollbar;
 
-  // â‰¤ 1400px â†’ 3 colonnes
   @media (max-width: 1400px) { grid-template-columns: repeat(3, 1fr); }
-  // â‰¤ 1024px â†’ 2 colonnes
-  @media (max-width: 1024px) { grid-template-columns: repeat(2, 1fr); }
-  // â‰¤ 640px  â†’ 1 colonne
+  @media (max-width: 1100px) { grid-template-columns: repeat(2, 1fr); }
   @media (max-width: 640px)  { grid-template-columns: 1fr; }
 }
 
@@ -137,11 +187,37 @@
     box-shadow 0.18s ease,
     border-color 0.18s ease;
 
+  cursor: pointer;
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: $shadow-lg;
     border-color: var(--c-primary-200, #{$color-primary-200});
   }
+
+  // État sélectionné — effect ring + fond accent discret
+  &--selected {
+    border-color: var(--c-primary-500, #{$color-primary-500}) !important;
+    box-shadow: 0 0 0 2px rgba(37,99,235,0.15), #{$shadow-md} !important;
+    transform: none !important;
+    background: var(--c-primary-50, #{$color-primary-50});
+  }
+}
+
+// Barre d'accent gauche sur la carte sélectionnée
+.card-selected-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--c-primary-500, #{$color-primary-500});
+  border-radius: $radius-sm 0 0 $radius-sm;
+}
+
+// Rendre la card relative pour positionner la barre
+.app-card {
+  position: relative;
 }
 
 // â”€â”€ Card header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -557,3 +633,4 @@ mat-divider { flex-shrink: 0; }
     mat-icon { color: $color-danger-text !important; }
   }
 }
+

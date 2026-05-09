@@ -1,0 +1,246 @@
+<div class="detail-panel" [@panelSlide] (click)="$event.stopPropagation()">
+
+  <!-- ── Header ──────────────────────────────────────────── -->
+  <div class="panel-header">
+    <div class="panel-header-left">
+      @if (detail(); as d) {
+        <div class="detail-avatar" [ngClass]="'avatar--' + d.type.toLowerCase()">
+          <mat-icon>{{ getAppIcon(d.type) }}</mat-icon>
+        </div>
+        <div class="panel-title-block">
+          <h2 class="panel-title">{{ d.name }}</h2>
+          <span class="panel-id">ID {{ d.id }}</span>
+        </div>
+      } @else if (loading()) {
+        <div class="skeleton-avatar-lg"></div>
+        <div class="panel-title-block">
+          <div class="skeleton-bar" style="width:140px;height:18px"></div>
+          <div class="skeleton-bar skeleton-bar--sm" style="width:60px;margin-top:5px"></div>
+        </div>
+      }
+    </div>
+
+    <button mat-icon-button class="close-btn" (click)="close()" matTooltip="Fermer">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- ── Status + type bar ────────────────────────────────── -->
+  @if (detail(); as d) {
+    <div class="panel-status-bar">
+      <span class="status-badge" [ngClass]="getStatusClass(d.status)">
+        <span class="status-dot"></span>
+        {{ d.status }}
+      </span>
+      <span class="type-chip" [ngClass]="getTypeClass(d.type)">
+        <mat-icon>{{ getAppIcon(d.type) }}</mat-icon>
+        {{ d.type }}
+      </span>
+      @if (d.numberOfValidation > 0) {
+        <span class="validation-chip">
+          <mat-icon>verified</mat-icon>
+          {{ d.numberOfValidation }} validation{{ d.numberOfValidation > 1 ? 's' : '' }}
+        </span>
+      }
+    </div>
+  } @else if (loading()) {
+    <div class="panel-status-bar">
+      <div class="skeleton-badge"></div>
+      <div class="skeleton-badge" style="width:80px"></div>
+    </div>
+  }
+
+  <mat-divider />
+
+  <!-- ── Scrollable body ───────────────────────────────────── -->
+  <div class="panel-body">
+
+    <!-- Skeleton loader -->
+    @if (loading()) {
+      <div class="detail-skeleton">
+        @for (r of skeletonRows; track r) {
+          <div class="sk-row">
+            <div class="sk-label"></div>
+            <div class="sk-value" [style.width]="(50 + r * 8) + '%'"></div>
+          </div>
+        }
+        <div class="sk-section-title"></div>
+        <div class="sk-chips">
+          <div class="sk-chip"></div>
+          <div class="sk-chip" style="width:90px"></div>
+          <div class="sk-chip" style="width:70px"></div>
+        </div>
+        <div class="sk-section-title"></div>
+        <div class="sk-chips">
+          <div class="sk-chip" style="width:100px"></div>
+          <div class="sk-chip" style="width:80px"></div>
+          <div class="sk-chip" style="width:120px"></div>
+          <div class="sk-chip" style="width:95px"></div>
+        </div>
+      </div>
+    }
+
+    <!-- Error state -->
+    @else if (loadError()) {
+      <div class="error-state">
+        <mat-icon class="error-icon">error_outline</mat-icon>
+        <p class="error-msg">Impossible de charger les détails.</p>
+        <button mat-stroked-button color="warn" (click)="close()">Fermer</button>
+      </div>
+    }
+
+    <!-- Detail content -->
+    @else {
+      @if (detail(); as d) {
+
+      <!-- Section : Identification -->
+      <section class="detail-section">
+        <h3 class="section-title">
+          <mat-icon>fingerprint</mat-icon>
+          Identification
+        </h3>
+        <div class="fields-grid">
+          <div class="field-item">
+            <span class="field-label">IRN</span>
+            <span class="field-value mono">{{ d.irn || '—' }}</span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">SIA</span>
+            <span class="field-value mono">{{ d.sia || '—' }}</span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">IPN</span>
+            <span class="field-value">{{ d.ipn || '—' }}</span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Owner IPN</span>
+            <span class="field-value">{{ d.applicationOwnerIPN || '—' }}</span>
+          </div>
+          <div class="field-item full">
+            <span class="field-label">Organisation</span>
+            <span class="field-value">{{ d.organization || '—' }}</span>
+          </div>
+        </div>
+      </section>
+
+      <mat-divider />
+
+      <!-- Section : Contact -->
+      <section class="detail-section">
+        <h3 class="section-title">
+          <mat-icon>contact_mail</mat-icon>
+          Contact
+        </h3>
+        <div class="fields-grid">
+          <div class="field-item full">
+            <span class="field-label">Email de contact</span>
+            <a class="field-value link" [href]="'mailto:' + d.contactEmail">{{ d.contactEmail || '—' }}</a>
+          </div>
+          <div class="field-item full">
+            <span class="field-label">Mailing list</span>
+            <a class="field-value link" [href]="'mailto:' + d.mailingList">{{ d.mailingList || '—' }}</a>
+          </div>
+        </div>
+      </section>
+
+      <mat-divider />
+
+      <!-- Section : Description -->
+      @if (d.description) {
+        <section class="detail-section">
+          <h3 class="section-title">
+            <mat-icon>description</mat-icon>
+            Description
+          </h3>
+          <p class="description-text">{{ d.description }}</p>
+        </section>
+
+        <mat-divider />
+      }
+
+      <!-- Section : Métadonnées -->
+      <section class="detail-section">
+        <h3 class="section-title">
+          <mat-icon>schedule</mat-icon>
+          Métadonnées
+        </h3>
+        <div class="fields-grid">
+          <div class="field-item">
+            <span class="field-label">Créé le</span>
+            <span class="field-value">{{ d.createdAt ? (d.createdAt | date:'dd/MM/yyyy HH:mm') : '—' }}</span>
+          </div>
+          <div class="field-item">
+            <span class="field-label">Créé par</span>
+            <span class="field-value">{{ d.createdBy || '—' }}</span>
+          </div>
+        </div>
+      </section>
+
+      <mat-divider />
+
+      <!-- Section : Roles -->
+      <section class="detail-section">
+        <h3 class="section-title">
+          <mat-icon>manage_accounts</mat-icon>
+          Rôles
+          <span class="section-count">{{ d.roles.length }}</span>
+        </h3>
+        @if (d.roles.length === 0) {
+          <p class="empty-chips">Aucun rôle assigné</p>
+        } @else {
+          <div class="chips-wrap">
+            @for (role of d.roles; track role) {
+              <span class="role-chip">
+                <mat-icon>shield</mat-icon>
+                {{ role }}
+              </span>
+            }
+          </div>
+        }
+      </section>
+
+      <mat-divider />
+
+      <!-- Section : Permissions -->
+      <section class="detail-section">
+        <h3 class="section-title">
+          <mat-icon>lock_open</mat-icon>
+          Permissions
+          <span class="section-count">{{ d.permissions.length }}</span>
+        </h3>
+        @if (d.permissions.length === 0) {
+          <p class="empty-chips">Aucune permission assignée</p>
+        } @else {
+          <div class="permissions-grid">
+            @for (perm of d.permissions; track perm) {
+              <span class="perm-chip" [ngClass]="getPermissionClass(perm)" [matTooltip]="perm">
+                <mat-icon>{{ getPermissionIcon(perm) }}</mat-icon>
+                {{ formatPermission(perm) }}
+              </span>
+            }
+          </div>
+        }
+      </section>
+
+      } <!-- /if detail -->
+    } <!-- /else -->
+  </div>
+
+  <!-- ── Footer actions ───────────────────────────────────── -->
+  @if (detail(); as d) {
+    <div class="panel-footer">
+      <button mat-stroked-button class="footer-btn footer-btn--keys">
+        <mat-icon>vpn_key</mat-icon>
+        Voir les clés
+      </button>
+      <button mat-stroked-button class="footer-btn footer-btn--edit">
+        <mat-icon>edit</mat-icon>
+        Modifier
+      </button>
+      <button mat-icon-button color="warn" class="footer-btn--delete" matTooltip="Supprimer">
+        <mat-icon>delete_outline</mat-icon>
+      </button>
+    </div>
+  }
+
+</div>

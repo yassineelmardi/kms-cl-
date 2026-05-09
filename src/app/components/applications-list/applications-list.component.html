@@ -1,249 +1,285 @@
-<div class="apps-page">
+﻿<div class="apps-page" (click)="onDetailClosed()">
 
-  <!-- ── Toolbar ──────────────────────────────────────────── -->
-  <div class="apps-toolbar">
-    <div class="toolbar-left">
-      <h1 class="page-title">
-        <mat-icon class="title-icon">apps</mat-icon>
-        Applications
-        @if (!loading() && !isFirstLoad()) {
-          <span class="count-badge">{{ totalElements() }}</span>
-        }
-      </h1>
-      <p class="page-subtitle">Gérez et consultez les applications enregistrées</p>
-    </div>
+  <!-- ══════════════════════════════════════════════════════
+       HEADER : Toolbar + Filtres
+  ═══════════════════════════════════════════════════════ -->
+  <div class="apps-header">
 
-    <div class="toolbar-right">
-      <button mat-flat-button color="primary" class="add-btn" disabled>
-        <mat-icon>add</mat-icon>
-        Nouvelle application
-      </button>
-    </div>
-  </div>
-
-  <!-- ── Filtres ───────────────────────────────────────────── -->
-  <div class="filters-bar">
-    <mat-form-field appearance="outline" class="search-field">
-      <mat-icon matPrefix>search</mat-icon>
-      <input
-        matInput
-        placeholder="Rechercher par nom..."
-        [value]="searchQuery()"
-        (input)="onSearch($any($event.target).value)"
-      />
-      @if (searchQuery()) {
-        <button matSuffix mat-icon-button (click)="clearSearch()">
-          <mat-icon>close</mat-icon>
-        </button>
-      }
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="filter-field">
-      <mat-label>Statut</mat-label>
-      <mat-select [value]="statusFilter()" (selectionChange)="onStatusFilter($event.value)">
-        <mat-option value="">Tous</mat-option>
-        <mat-option value="Active">Active</mat-option>
-        <mat-option value="Pending">Pending</mat-option>
-        <mat-option value="Draft">Draft</mat-option>
-        <mat-option value="Inactive">Inactive</mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="filter-field">
-      <mat-label>Type</mat-label>
-      <mat-select [value]="typeFilter()" (selectionChange)="onTypeFilter($event.value)">
-        <mat-option value="">Tous</mat-option>
-        <mat-option value="Internal">Internal</mat-option>
-        <mat-option value="External">External</mat-option>
-        <mat-option value="Partner">Partner</mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    @if (hasActiveFilters()) {
-      <button mat-stroked-button class="clear-filters-btn" (click)="clearAllFilters()">
-        <mat-icon>filter_list_off</mat-icon>
-        Effacer
-      </button>
-    }
-  </div>
-
-  <!-- ── Skeleton loader ───────────────────────────────────── -->
-  @if (isFirstLoad()) {
-    <div class="apps-grid">
-      @for (i of skeletons; track i) {
-        <div class="app-card skeleton-card">
-          <div class="skeleton-header">
-            <div class="skeleton-avatar"></div>
-            <div class="skeleton-lines">
-              <div class="skeleton-bar" style="width:60%"></div>
-              <div class="skeleton-bar skeleton-bar--sm" style="width:40%"></div>
-            </div>
-            <div class="skeleton-badge"></div>
-          </div>
-          <div class="skeleton-body">
-            @for (j of [1,2,3,4]; track j) {
-              <div class="skeleton-field">
-                <div class="skeleton-bar skeleton-bar--xs" style="width:30%"></div>
-                <div class="skeleton-bar skeleton-bar--sm" style="width:55%"></div>
-              </div>
-            }
-          </div>
-          <div class="skeleton-footer">
-            <div class="skeleton-btn"></div>
-            <div class="skeleton-btn"></div>
-          </div>
-        </div>
-      }
-    </div>
-  }
-
-  <!-- ── Empty state ───────────────────────────────────────── -->
-  @else if (!loading() && applications().length === 0) {
-    <div class="empty-state">
-      <div class="empty-icon-wrap">
-        <mat-icon>apps</mat-icon>
+    <div class="apps-toolbar">
+      <div class="toolbar-left">
+        <h1 class="page-title">
+          <mat-icon class="title-icon">apps</mat-icon>
+          Applications
+          @if (!loading() && !isFirstLoad()) {
+            <span class="count-badge">{{ totalElements() }}</span>
+          }
+        </h1>
+        <p class="page-subtitle">Gérez et consultez les applications enregistrées</p>
       </div>
-      <h3 class="empty-title">Aucune application trouvée</h3>
-      <p class="empty-subtitle">
-        @if (hasActiveFilters()) {
-          Modifiez vos filtres ou effectuez une autre recherche.
-        } @else {
-          Aucune application n'est encore enregistrée.
+
+      <div class="toolbar-right">
+        <button mat-flat-button color="primary" class="add-btn" disabled>
+          <mat-icon>add</mat-icon>
+          Nouvelle application
+        </button>
+      </div>
+    </div>
+
+    <div class="filters-bar">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-icon matPrefix>search</mat-icon>
+        <input
+          matInput
+          placeholder="Rechercher par nom..."
+          [value]="searchQuery()"
+          (input)="onSearch($any($event.target).value)"
+        />
+        @if (searchQuery()) {
+          <button matSuffix mat-icon-button (click)="clearSearch()">
+            <mat-icon>close</mat-icon>
+          </button>
         }
-      </p>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Statut</mat-label>
+        <mat-select [value]="statusFilter()" (selectionChange)="onStatusFilter($event.value)">
+          <mat-option value="">Tous</mat-option>
+          <mat-option value="Active">Active</mat-option>
+          <mat-option value="Pending">Pending</mat-option>
+          <mat-option value="Draft">Draft</mat-option>
+          <mat-option value="Inactive">Inactive</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Type</mat-label>
+        <mat-select [value]="typeFilter()" (selectionChange)="onTypeFilter($event.value)">
+          <mat-option value="">Tous</mat-option>
+          <mat-option value="Internal">Internal</mat-option>
+          <mat-option value="External">External</mat-option>
+          <mat-option value="Partner">Partner</mat-option>
+        </mat-select>
+      </mat-form-field>
+
       @if (hasActiveFilters()) {
-        <button mat-stroked-button (click)="clearAllFilters()">
-          <mat-icon>refresh</mat-icon>
-          Réinitialiser les filtres
+        <button mat-stroked-button class="clear-filters-btn" (click)="clearAllFilters()">
+          <mat-icon>filter_list_off</mat-icon>
+          Effacer
         </button>
       }
     </div>
-  }
 
-  <!-- ── Grid des cartes ───────────────────────────────────── -->
-  @else {
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       MASTER-DETAIL LAYOUT
+  ═══════════════════════════════════════════════════════ -->
+  <div class="master-detail-layout">
+
+    <!-- ── Partie gauche : liste ──────────────────────────── -->
     <div
-      class="apps-grid"
+      class="master-panel"
+      [class.detail-open]="selectedAppId() !== null"
       (scroll)="onScroll($event)"
       #gridContainer
     >
-      @for (app of applications(); track app.id) {
-        <div class="app-card" [@cardAppear]>
 
-          <!-- Header de la carte -->
-          <div class="card-header">
-            <div class="app-avatar" [ngClass]="getAvatarClass(app.type)">
-              <mat-icon>{{ getAppIcon(app.type) }}</mat-icon>
+      <!-- Skeleton loader -->
+      @if (isFirstLoad()) {
+        <div class="apps-grid">
+          @for (i of skeletons; track i) {
+            <div class="app-card skeleton-card">
+              <div class="skeleton-header">
+                <div class="skeleton-avatar"></div>
+                <div class="skeleton-lines">
+                  <div class="skeleton-bar" style="width:60%"></div>
+                  <div class="skeleton-bar skeleton-bar--sm" style="width:40%"></div>
+                </div>
+                <div class="skeleton-badge"></div>
+              </div>
+              <div class="skeleton-body">
+                @for (j of [1,2,3,4]; track j) {
+                  <div class="skeleton-field">
+                    <div class="skeleton-bar skeleton-bar--xs" style="width:30%"></div>
+                    <div class="skeleton-bar skeleton-bar--sm" style="width:55%"></div>
+                  </div>
+                }
+              </div>
+              <div class="skeleton-footer">
+                <div class="skeleton-btn"></div>
+                <div class="skeleton-btn"></div>
+              </div>
             </div>
-            <div class="card-header-info">
-              <h3 class="app-name" [title]="app.name">{{ app.name }}</h3>
-              <span class="app-id">ID: {{ app.id }}</span>
-            </div>
-            <div class="card-header-actions">
-              <span class="status-badge" [ngClass]="getStatusClass(app.status)">
-                <span class="status-dot"></span>
-                {{ app.status }}
-              </span>
-              <button
-                mat-icon-button
-                class="menu-trigger"
-                [matMenuTriggerFor]="cardMenu"
-                [matMenuTriggerData]="{ app: app }"
-                (click)="$event.stopPropagation()"
-              >
-                <mat-icon>more_vert</mat-icon>
-              </button>
-            </div>
+          }
+        </div>
+      }
+
+      <!-- Empty state -->
+      @else if (!loading() && applications().length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon-wrap">
+            <mat-icon>apps</mat-icon>
           </div>
+          <h3 class="empty-title">Aucune application trouvée</h3>
+          <p class="empty-subtitle">
+            @if (hasActiveFilters()) {
+              Modifiez vos filtres ou effectuez une autre recherche.
+            } @else {
+              Aucune application n'est encore enregistrée.
+            }
+          </p>
+          @if (hasActiveFilters()) {
+            <button mat-stroked-button (click)="clearAllFilters()">
+              <mat-icon>refresh</mat-icon>
+              Réinitialiser les filtres
+            </button>
+          }
+        </div>
+      }
 
-          <mat-divider />
+      <!-- Grid des cartes -->
+      @else {
+        <div class="apps-grid">
 
-          <!-- Body de la carte -->
-          <div class="card-body">
-            <div class="field-row">
-              <div class="field-item">
-                <span class="field-label">IRN</span>
-                <span class="field-value mono">{{ app.irn || '—' }}</span>
-              </div>
-              <div class="field-item">
-                <span class="field-label">SIA</span>
-                <span class="field-value mono">{{ app.sia || '—' }}</span>
-              </div>
-            </div>
-            <div class="field-row">
-              <div class="field-item">
-                <span class="field-label">IPN</span>
-                <span class="field-value">{{ app.ipn || '—' }}</span>
-              </div>
-              <div class="field-item">
-                <span class="field-label">Type</span>
-                <span class="type-chip" [ngClass]="getTypeClass(app.type)">
-                  <mat-icon>{{ getTypeIcon(app.type) }}</mat-icon>
-                  {{ app.type }}
-                </span>
-              </div>
-            </div>
-            <div class="field-item full">
-              <span class="field-label">Template lié</span>
-              @if (app.linkedToKeyTemplate) {
-                <span class="field-value linked-template">
-                  <mat-icon>link</mat-icon>
-                  {{ app.linkedToKeyTemplate }}
-                </span>
-              } @else {
-                <span class="field-value no-template">
-                  <mat-icon>link_off</mat-icon>
-                  Aucun template
-                </span>
+          @for (app of applications(); track app.id) {
+            <div
+              class="app-card"
+              [class.app-card--selected]="isSelected(app)"
+              [@cardAppear]
+              (click)="selectApp(app, $event)"
+              role="button"
+              [attr.aria-selected]="isSelected(app)"
+              tabindex="0"
+              (keydown.enter)="selectApp(app, $event)"
+            >
+              @if (isSelected(app)) {
+                <div class="card-selected-bar"></div>
               }
+
+              <!-- Header -->
+              <div class="card-header">
+                <div class="app-avatar" [ngClass]="getAvatarClass(app.type)">
+                  <mat-icon>{{ getAppIcon(app.type) }}</mat-icon>
+                </div>
+                <div class="card-header-info">
+                  <h3 class="app-name" [title]="app.name">{{ app.name }}</h3>
+                  <span class="app-id">ID: {{ app.id }}</span>
+                </div>
+                <div class="card-header-actions">
+                  <span class="status-badge" [ngClass]="getStatusClass(app.status)">
+                    <span class="status-dot"></span>
+                    {{ app.status }}
+                  </span>
+                  <button
+                    mat-icon-button
+                    class="menu-trigger"
+                    [matMenuTriggerFor]="cardMenu"
+                    [matMenuTriggerData]="{ app: app }"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <mat-icon>more_vert</mat-icon>
+                  </button>
+                </div>
+              </div>
+
+              <mat-divider />
+
+              <!-- Body -->
+              <div class="card-body">
+                <div class="field-item">
+                  <span class="field-label">IRN</span>
+                  <span class="field-value mono">{{ app.irn || '—' }}</span>
+                </div>
+                <div class="field-item">
+                  <span class="field-label">SIA</span>
+                  <span class="field-value mono">{{ app.sia || '—' }}</span>
+                </div>
+                <div class="field-item">
+                  <span class="field-label">IPN</span>
+                  <span class="field-value">{{ app.ipn || '—' }}</span>
+                </div>
+                <div class="field-item">
+                  <span class="field-label">Type</span>
+                  <span class="type-chip" [ngClass]="getTypeClass(app.type)">
+                    <mat-icon>{{ getTypeIcon(app.type) }}</mat-icon>
+                    {{ app.type }}
+                  </span>
+                </div>
+                <div class="field-item full">
+                  <span class="field-label">Template lié</span>
+                  @if (app.linkedToKeyTemplate) {
+                    <span class="field-value linked-template">
+                      <mat-icon>link</mat-icon>
+                      {{ app.linkedToKeyTemplate }}
+                    </span>
+                  } @else {
+                    <span class="field-value no-template">
+                      <mat-icon>link_off</mat-icon>
+                      Aucun template
+                    </span>
+                  }
+                </div>
+              </div>
+
+              <!-- Footer -->
+              <div class="card-footer">
+                <button mat-stroked-button class="action-btn action-btn--view" (click)="onView(app, $event)">
+                  <mat-icon>open_in_new</mat-icon>
+                  Détails
+                </button>
+                <button mat-stroked-button class="action-btn action-btn--edit" (click)="onEdit(app, $event)">
+                  <mat-icon>edit</mat-icon>
+                  Modifier
+                </button>
+                <button mat-stroked-button color="warn" class="action-btn action-btn--delete" (click)="onDelete(app, $event)">
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
+              </div>
+
             </div>
-          </div>
+          }
 
-          <!-- Footer actions -->
-          <div class="card-footer">
-            <button mat-stroked-button class="action-btn action-btn--view" (click)="onView(app)">
-              <mat-icon>visibility</mat-icon>
-              Voir
-            </button>
-            <button mat-stroked-button class="action-btn action-btn--edit" (click)="onEdit(app)">
-              <mat-icon>edit</mat-icon>
-              Modifier
-            </button>
-            <button mat-stroked-button color="warn" class="action-btn action-btn--delete" (click)="onDelete(app)">
-              <mat-icon>delete_outline</mat-icon>
-              Supprimer
-            </button>
-          </div>
+          <!-- Load more spinner -->
+          @if (loading() && !isFirstLoad()) {
+            <div class="load-more-spinner">
+              <mat-spinner diameter="32" />
+              <span>Chargement...</span>
+            </div>
+          }
 
-        </div>
-      }
+          <!-- End-of-list -->
+          @if (isLastPage() && applications().length > 0 && !isFirstLoad()) {
+            <div class="end-of-list">
+              <mat-icon>check_circle_outline</mat-icon>
+              <span>{{ totalElements() }} application{{ totalElements() > 1 ? 's' : '' }} au total</span>
+            </div>
+          }
 
-      <!-- Infinite scroll loading spinner -->
-      @if (loading() && !isFirstLoad()) {
-        <div class="load-more-spinner">
-          <mat-spinner diameter="32" />
-          <span>Chargement...</span>
-        </div>
-      }
-
-      <!-- Fin de liste -->
-      @if (isLastPage() && applications().length > 0 && !isFirstLoad()) {
-        <div class="end-of-list">
-          <mat-icon>check_circle_outline</mat-icon>
-          <span>{{ totalElements() }} application{{ totalElements() > 1 ? 's' : '' }} au total</span>
         </div>
       }
 
     </div>
-  }
+
+    <!-- ── Partie droite : détail sticky ─────────────────── -->
+    @if (selectedAppId() !== null) {
+      <div class="detail-panel-wrap" [@detailPanel]>
+        <app-application-detail
+          [appId]="selectedAppId()"
+          (closed)="onDetailClosed()"
+        />
+      </div>
+    }
+
+  </div>
 
 </div>
 
-<!-- ── Mat Menu actions ──────────────────────────────────── -->
+<!-- ── Mat Menu ──────────────────────────────────────────── -->
 <mat-menu #cardMenu="matMenu" class="app-card-menu">
   <ng-template matMenuContent let-app="app">
     <button mat-menu-item (click)="onView(app)">
-      <mat-icon>visibility</mat-icon>
+      <mat-icon>open_in_new</mat-icon>
       <span>Voir les détails</span>
     </button>
     <button mat-menu-item (click)="onEdit(app)">
@@ -261,3 +297,4 @@
     </button>
   </ng-template>
 </mat-menu>
+

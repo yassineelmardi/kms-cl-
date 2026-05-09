@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  HostListener,
   inject,
   OnInit,
   signal,
@@ -36,6 +37,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { ApplicationsService } from '../../services/applications.service';
 import { NotificationService } from '../../services/notification.service';
 import { ApplicationDTO } from '../../models/applications.model';
+import { ApplicationDetailComponent } from '../application-detail/application-detail.component';
 
 @Component({
   selector: 'app-applications-list',
@@ -53,6 +55,7 @@ import { ApplicationDTO } from '../../models/applications.model';
     MatProgressSpinnerModule,
     MatTooltipModule,
     MatChipsModule,
+    ApplicationDetailComponent,
   ],
   templateUrl: './applications-list.component.html',
   styleUrl: './applications-list.component.scss',
@@ -62,6 +65,15 @@ import { ApplicationDTO } from '../../models/applications.model';
       transition(':enter', [
         style({ opacity: 0, transform: 'translateY(12px)' }),
         animate('220ms cubic-bezier(.4,0,.2,1)', style({ opacity: 1, transform: 'translateY(0)' })),
+      ]),
+    ]),
+    trigger('detailPanel', [
+      transition(':enter', [
+        style({ opacity: 0, width: '0px', minWidth: '0px' }),
+        animate('280ms cubic-bezier(.4,0,.2,1)', style({ opacity: 1, width: '*', minWidth: '*' })),
+      ]),
+      transition(':leave', [
+        animate('220ms cubic-bezier(.4,0,.2,1)', style({ opacity: 0, width: '0px', minWidth: '0px' })),
       ]),
     ]),
   ],
@@ -74,14 +86,17 @@ export class ApplicationsListComponent implements OnInit {
   @ViewChild('gridContainer') gridRef!: ElementRef<HTMLDivElement>;
 
   // ── State ──────────────────────────────────────────────────
-  readonly applications  = signal<ApplicationDTO[]>([]);
-  readonly loading       = signal(false);
-  readonly isFirstLoad   = signal(true);
-  readonly isLastPage    = signal(false);
-  readonly totalElements = signal(0);
-  readonly searchQuery   = signal('');
-  readonly statusFilter  = signal('');
-  readonly typeFilter    = signal('');
+  readonly applications   = signal<ApplicationDTO[]>([]);
+  readonly loading        = signal(false);
+  readonly isFirstLoad    = signal(true);
+  readonly isLastPage     = signal(false);
+  readonly totalElements  = signal(0);
+  readonly searchQuery    = signal('');
+  readonly statusFilter   = signal('');
+  readonly typeFilter     = signal('');
+
+  /** ID de l'application sélectionnée (master-detail) */
+  readonly selectedAppId  = signal<number | null>(null);
 
   private currentPage = 0;
   private readonly PAGE_SIZE = 30;
@@ -93,7 +108,6 @@ export class ApplicationsListComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    // Debounce search input → reload
     this.search$.pipe(
       debounceTime(350),
       distinctUntilChanged(),
@@ -104,6 +118,11 @@ export class ApplicationsListComponent implements OnInit {
     });
 
     this.loadPage(0);
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.selectedAppId.set(null);
   }
 
   onScroll(event: Event): void {
@@ -140,20 +159,40 @@ export class ApplicationsListComponent implements OnInit {
     this.reload();
   }
 
-  // ── Actions ────────────────────────────────────────────────
-  onView(app: ApplicationDTO): void {
-    this.notif.showSuccess(`Vue de l'application : ${app.name}`);
+  // ── Sélection master-detail ────────────────────────────────
+  selectApp(app: ApplicationDTO, event: Event): void {
+    event.stopPropagation();
+    this.selectedAppId.set(
+      this.selectedAppId() === app.id ? null : app.id
+    );
   }
 
-  onEdit(app: ApplicationDTO): void {
+  onDetailClosed(): void {
+    this.selectedAppId.set(null);
+  }
+
+  isSelected(app: ApplicationDTO): boolean {
+    return this.selectedAppId() === app.id;
+  }
+
+  // ── Actions ────────────────────────────────────────────────
+  onView(app: ApplicationDTO, event?: Event): void {
+    event?.stopPropagation();
+    this.selectedAppId.set(app.id);
+  }
+
+  onEdit(app: ApplicationDTO, event?: Event): void {
+    event?.stopPropagation();
     this.notif.showWarning(`Édition de l'application : ${app.name} (à implémenter)`);
   }
 
-  onDelete(app: ApplicationDTO): void {
+  onDelete(app: ApplicationDTO, event?: Event): void {
+    event?.stopPropagation();
     this.notif.showError(`Suppression de "${app.name}" (à implémenter)`);
   }
 
-  onViewKeys(app: ApplicationDTO): void {
+  onViewKeys(app: ApplicationDTO, event?: Event): void {
+    event?.stopPropagation();
     this.notif.showSuccess(`Clés de l'application ID ${app.id}`);
   }
 
@@ -239,3 +278,4 @@ export class ApplicationsListComponent implements OnInit {
     });
   }
 }
+
