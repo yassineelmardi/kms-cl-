@@ -14,6 +14,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'keys',
+    loadComponent: () =>
+      import('./components/keys-list/keys-list.component').then(
+        m => m.KeysListComponent
+      ),
+  },
+  {
     path: 'applications/:applicationId/keys',
     loadComponent: () =>
       import('./components/keys-list/keys-list.component').then(

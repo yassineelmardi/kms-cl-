@@ -1,103 +1,200 @@
-<div class="keys-page" (click)="onRowClick(null)">
+﻿<div class="keys-page" (click)="onRowClick(null)">
 
-  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-       BREADCRUMB + HEADER
-  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-  <div class="keys-header">
+  <!-- ══════════════════════════════════════════════════════
+       PAGE HEADER
+  ══════════════════════════════════════════════════════ -->
+  <header class="page-header">
 
-    <!-- Breadcrumb navigation -->
-    <nav class="breadcrumb" aria-label="Navigation">
-      <button mat-button class="breadcrumb-link" (click)="goBackToApplications()">
-        <mat-icon>apps</mat-icon>
-        <span>Applications</span>
-      </button>
-      <mat-icon class="breadcrumb-sep">chevron_right</mat-icon>
-
-      @if (appLoading()) {
-        <span class="breadcrumb-skeleton"></span>
-      } @else {
-        <span class="breadcrumb-current">{{ breadcrumb().appName }}</span>
-        @if (breadcrumb().appStatus) {
-          <span class="app-status-badge" [ngClass]="getStatusBadgeClass(breadcrumb().appStatus)">
-            <span class="status-dot"></span>
-            {{ breadcrumb().appStatus }}
-          </span>
-        }
-      }
-
-      <mat-icon class="breadcrumb-sep">chevron_right</mat-icon>
-      <span class="breadcrumb-page">
-        <mat-icon>vpn_key</mat-icon>
-        Clés
-      </span>
-    </nav>
-
-    <!-- Page title + actions -->
-    <div class="keys-toolbar">
-      <div class="toolbar-left">
-        <button
-          mat-icon-button
-          class="back-btn"
-          (click)="goBackToApplications()"
-          matTooltip="Retour aux Applications"
-          matTooltipPosition="right"
-        >
-          <mat-icon>arrow_back</mat-icon>
-        </button>
-        <div class="title-group">
-          <h1 class="page-title">
-            <mat-icon class="title-icon">vpn_key</mat-icon>
-            Clés cryptographiques
-            @if (!loading()) {
-              <span class="count-badge">{{ totalElements() }}</span>
-            }
-          </h1>
-          @if (appLoading()) {
-            <p class="page-subtitle skeleton-text"></p>
-          } @else {
-            <p class="page-subtitle">
-              Application
-              <strong>#{{ breadcrumb().appId }}</strong> â€”
-              {{ breadcrumb().appName }}
-            </p>
-          }
+    <div class="header-top">
+      <div class="header-identity">
+        <div class="header-icon-wrap">
+          <mat-icon class="header-icon">vpn_key</mat-icon>
+        </div>
+        <div>
+          <h1 class="header-title">Cles cryptographiques</h1>
+          <p class="header-sub">Recherchez une application pour explorer ses cles</p>
         </div>
       </div>
-      <div class="toolbar-right">
-        <button mat-flat-button color="primary" class="add-btn" (click)="onAddKey()">
-          <mat-icon>add</mat-icon>
-          Nouvelle clé
+
+      @if (hasApp()) {
+        <button mat-stroked-button class="back-btn" (click)="goBackToApplications()">
+          <mat-icon>arrow_back</mat-icon>
+          Applications
         </button>
-      </div>
+      }
     </div>
 
-    <!-- Search bar -->
-    <div class="filters-bar">
-      <mat-form-field appearance="outline" class="search-field">
-        <mat-icon matPrefix>search</mat-icon>
+    <!-- ── App search autocomplete ───────────────────────── -->
+    <div class="app-search-bar">
+      <mat-form-field appearance="outline" class="app-search-field" subscriptSizing="dynamic">
+        <mat-icon matPrefix class="search-prefix-icon">search</mat-icon>
+        <mat-label>Rechercher une application...</mat-label>
         <input
           matInput
-          [formControl]="searchControl"
-          placeholder="Rechercher par nom de cléâ€¦"
+          type="text"
+          [formControl]="appSearchControl"
+          [matAutocomplete]="appAuto"
           autocomplete="off"
+          spellcheck="false"
         />
-        @if (searchControl.value) {
-          <button matSuffix mat-icon-button (click)="onSearchClear()" matTooltip="Effacer">
+        <mat-autocomplete
+          #appAuto="matAutocomplete"
+          [displayWith]="displayAppFn"
+          (optionSelected)="onAppSelected($event.option.value)"
+          class="app-autocomplete-panel"
+        >
+          @if (appSearching()) {
+            <mat-option disabled class="autocomplete-loading">
+              <mat-spinner diameter="18" class="inline-spinner" />
+              <span>Recherche en cours...</span>
+            </mat-option>
+          } @else {
+            @for (app of appSuggestions(); track trackByAppId($index, app)) {
+              <mat-option [value]="app" class="app-option">
+                <div class="app-option-content">
+                  <div class="app-option-main">
+                    <span class="app-option-name">{{ app.name }}</span>
+                    <span class="app-option-badge" [ngClass]="getAppStatusClass(app.status)">
+                      {{ app.status }}
+                    </span>
+                  </div>
+                  <div class="app-option-meta">
+                    <span class="app-option-irn">{{ app.irn }}</span>
+                    @if (app.type) {
+                      <span class="app-option-sep">·</span>
+                      <span class="app-option-type">{{ app.type }}</span>
+                    }
+                  </div>
+                </div>
+              </mat-option>
+            }
+            @if (appSuggestions().length === 0 && appSearchStr.length >= 2) {
+              <mat-option disabled class="autocomplete-empty">
+                <mat-icon>search_off</mat-icon>
+                Aucune application trouvee
+              </mat-option>
+            }
+          }
+        </mat-autocomplete>
+
+        @if (hasApp()) {
+          <button matSuffix mat-icon-button (click)="onAppSearchCleared(); $event.stopPropagation()" matTooltip="Changer d'application">
             <mat-icon>close</mat-icon>
           </button>
         }
       </mat-form-field>
+
+      @if (appLoading()) {
+        <div class="app-loading-bar">
+          <mat-spinner diameter="20" />
+          <span>Chargement de l'application...</span>
+        </div>
+      }
     </div>
-  </div>
 
-  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-       MASTER-DETAIL LAYOUT
-  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-  <div class="master-detail-layout">
+    <!-- ── App info card (quand sélectionnée) ─────────────── -->
+    @if (selectedApp(); as app) {
+      <div class="app-info-card">
+        <div class="app-info-left">
+          <div class="app-info-avatar">
+            {{ app.name.charAt(0).toUpperCase() }}
+          </div>
+          <div class="app-info-details">
+            <div class="app-info-name">{{ app.name }}</div>
+            <div class="app-info-meta">
+              <span class="app-meta-item">
+                <mat-icon class="meta-icon">fingerprint</mat-icon>
+                {{ app.irn }}
+              </span>
+              @if (app.sia) {
+                <span class="app-meta-sep">·</span>
+                <span class="app-meta-item">
+                  <mat-icon class="meta-icon">business</mat-icon>
+                  {{ app.sia }}
+                </span>
+              }
+              @if (app.type) {
+                <span class="app-meta-sep">·</span>
+                <span class="app-meta-item">{{ app.type }}</span>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="app-info-right">
+          <span class="app-status-badge" [ngClass]="getAppStatusClass(app.status)">
+            <span class="badge-dot"></span>
+            {{ app.status }}
+          </span>
+          <span class="keys-count-chip">
+            <mat-icon>vpn_key</mat-icon>
+            {{ totalElements() }} cle(s)
+          </span>
+        </div>
+      </div>
+    }
 
-    <!-- â”€â”€ Table panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
-    <div class="table-panel" (click)="$event.stopPropagation()">
+  </header>
 
+  <!-- ══════════════════════════════════════════════════════
+       EMPTY STATE (aucune app sélectionnée)
+  ══════════════════════════════════════════════════════ -->
+  @if (!hasApp() && !appLoading()) {
+    <div class="empty-state">
+      <div class="empty-illustration">
+        <div class="empty-icon-ring outer">
+          <div class="empty-icon-ring inner">
+            <mat-icon class="empty-icon">manage_search</mat-icon>
+          </div>
+        </div>
+      </div>
+      <h2 class="empty-title">Selectionnez une application</h2>
+      <p class="empty-desc">
+        Utilisez la barre de recherche ci-dessus pour trouver une application
+        et explorer ses cles cryptographiques.
+      </p>
+      <div class="empty-hints">
+        <div class="hint-chip">
+          <mat-icon>lightbulb</mat-icon>
+          Tapez min. 2 caracteres pour lancer la recherche
+        </div>
+        <div class="hint-chip">
+          <mat-icon>route</mat-icon>
+          Ou accedez via <code>/applications/:id/keys</code>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════════════════════
+       KEYS PANEL (app sélectionnée)
+  ══════════════════════════════════════════════════════ -->
+  @if (hasApp()) {
+    <div class="keys-panel" (click)="$event.stopPropagation()">
+
+      <!-- Keys toolbar -->
+      <div class="keys-toolbar">
+        <mat-form-field appearance="outline" class="key-search-field" subscriptSizing="dynamic">
+          <mat-icon matPrefix>search</mat-icon>
+          <input
+            matInput
+            [formControl]="keySearchControl"
+            placeholder="Rechercher par nom de cle..."
+            autocomplete="off"
+          />
+          @if (keySearchControl.value) {
+            <button matSuffix mat-icon-button (click)="onKeySearchClear()" matTooltip="Effacer">
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </mat-form-field>
+
+        <button mat-flat-button color="primary" class="add-key-btn" (click)="onAddKey()">
+          <mat-icon>add</mat-icon>
+          Nouvelle cle
+        </button>
+      </div>
+
+      <!-- Error banner -->
       @if (error()) {
         <div class="error-banner" role="alert">
           <mat-icon>error_outline</mat-icon>
@@ -105,117 +202,130 @@
         </div>
       }
 
-      <div class="table-container" [class.loading]="loading()">
-        @if (loading()) {
-          <div class="spinner-overlay">
-            <mat-spinner diameter="48" />
+      <!-- Master-detail layout -->
+      <div class="master-detail-layout" [class.has-detail]="selectedKeyId() !== null">
+
+        <!-- Table -->
+        <div class="table-section">
+          <div class="table-container" [class.is-loading]="loading()">
+            @if (loading()) {
+              <div class="table-overlay">
+                <mat-spinner diameter="44" />
+              </div>
+            }
+
+            <table
+              mat-table
+              [dataSource]="data()"
+              [trackBy]="trackById"
+              matSort
+              (matSortChange)="onSortChange($event)"
+              class="keys-table"
+            >
+              <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+                <td mat-cell *matCellDef="let row" class="col-id">{{ row.id }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Nom</th>
+                <td mat-cell *matCellDef="let row">
+                  <div class="cell-name">
+                    <span class="key-name">{{ row.name }}</span>
+                    <span class="version-badge">v{{ row.version }}</span>
+                  </div>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="algorithm">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Algorithme</th>
+                <td mat-cell *matCellDef="let row">
+                  <code class="mono">{{ row.algorithm }}</code>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="sizeOrCurve">
+                <th mat-header-cell *matHeaderCellDef>Taille / Courbe</th>
+                <td mat-cell *matCellDef="let row">
+                  <code class="mono">{{ row.sizeOrCurve }}</code>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Statut</th>
+                <td mat-cell *matCellDef="let row">
+                  <span class="status-chip" [ngClass]="getStatusColor(row.status)">{{ row.status }}</span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="type">
+                <th mat-header-cell *matHeaderCellDef>Type</th>
+                <td mat-cell *matCellDef="let row">{{ row.type }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="certified">
+                <th mat-header-cell *matHeaderCellDef>Certifie</th>
+                <td mat-cell *matCellDef="let row" class="col-center">
+                  @if (row.certified) {
+                    <mat-icon class="icon-yes" matTooltip="Certifie">verified</mat-icon>
+                  } @else {
+                    <mat-icon class="icon-no" matTooltip="Non certifie">cancel</mat-icon>
+                  }
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="certificateStatus">
+                <th mat-header-cell *matHeaderCellDef>Cert. Statut</th>
+                <td mat-cell *matCellDef="let row">
+                  <span class="cert-chip" [ngClass]="getCertStatusColor(row.certificateStatus)">{{ row.certificateStatus }}</span>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+              <tr
+                mat-row
+                *matRowDef="let row; columns: displayedColumns"
+                class="key-row"
+                [class.selected-row]="selectedKeyId() === row.id"
+                (click)="onRowClick(row); $event.stopPropagation()"
+              ></tr>
+
+              <tr class="mat-row no-data-row" *matNoDataRow>
+                <td [attr.colspan]="displayedColumns.length">
+                  @if (!loading()) {
+                    <div class="no-data">
+                      <mat-icon>key_off</mat-icon>
+                      <span>Aucune cle trouvee pour cette application.</span>
+                    </div>
+                  }
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <mat-paginator
+            [length]="totalElements()"
+            [pageSize]="defaultPageSize"
+            [pageSizeOptions]="pageSizeOptions"
+            showFirstLastButtons
+            (page)="onPageChange($event)"
+            aria-label="Pagination des cles"
+          />
+        </div>
+
+        <!-- Detail side panel -->
+        @if (selectedKeyId() !== null) {
+          <div class="detail-side" (click)="$event.stopPropagation()">
+            <app-key-detail
+              [keyId]="selectedKeyId()!"
+              (keyDeleted)="onKeyDeleted($event)"
+              (keyDeactivated)="onKeyDeactivated($event)"
+            />
           </div>
         }
 
-        <table
-          mat-table
-          [dataSource]="data()"
-          [trackBy]="trackById"
-          matSort
-          (matSortChange)="onSortChange($event)"
-          class="keys-table"
-          aria-label="Liste des Clés"
-        >
-          <ng-container matColumnDef="id">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
-            <td mat-cell *matCellDef="let row">{{ row.id }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Nom</th>
-            <td mat-cell *matCellDef="let row">
-              <span class="key-name">{{ row.name }}</span>
-              <span class="version-badge" matTooltip="Version">v{{ row.version }}</span>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="algorithm">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Algorithme</th>
-            <td mat-cell *matCellDef="let row">{{ row.algorithm }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="sizeOrCurve">
-            <th mat-header-cell *matHeaderCellDef>Taille / Courbe</th>
-            <td mat-cell *matCellDef="let row">
-              <code class="mono">{{ row.sizeOrCurve }}</code>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Statut</th>
-            <td mat-cell *matCellDef="let row">
-              <span class="status-chip" [ngClass]="getStatusColor(row.status)">{{ row.status }}</span>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="type">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
-            <td mat-cell *matCellDef="let row">{{ row.type }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="certified">
-            <th mat-header-cell *matHeaderCellDef>Certifié</th>
-            <td mat-cell *matCellDef="let row">
-              @if (row.certified) {
-                <mat-icon class="icon-yes" matTooltip="Certifié">verified</mat-icon>
-              } @else {
-                <mat-icon class="icon-no" matTooltip="Non Certifié">cancel</mat-icon>
-              }
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="certificateStatus">
-            <th mat-header-cell *matHeaderCellDef>Statut certificat</th>
-            <td mat-cell *matCellDef="let row">
-              <span class="cert-chip" [ngClass]="getCertStatusColor(row.certificateStatus)">{{ row.certificateStatus }}</span>
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-          <tr
-            mat-row
-            *matRowDef="let row; columns: displayedColumns"
-            class="key-row"
-            [class.selected-row]="selectedKeyId() === row.id"
-            (click)="onRowClick(row)"
-          ></tr>
-
-          <tr class="mat-row no-data-row" *matNoDataRow>
-            <td [attr.colspan]="displayedColumns.length">
-              @if (!loading()) {
-                <div class="no-data">
-                  <mat-icon>key_off</mat-icon>
-                  <span>Aucune clé trouvée pour cette application.</span>
-                </div>
-              }
-            </td>
-          </tr>
-        </table>
       </div>
-
-      <mat-paginator
-        [length]="totalElements()"
-        [pageSize]="defaultPageSize"
-        [pageSizeOptions]="pageSizeOptions"
-        showFirstLastButtons
-        (page)="onPageChange($event)"
-        aria-label="Pagination"
-      />
     </div>
+  }
 
-    @if (selectedKeyId() !== null) {
-      <div class="detail-side" (click)="$event.stopPropagation()">
-        <app-key-detail
-          [keyId]="selectedKeyId()!"
-          (keyDeleted)="onKeyDeleted($event)"
-          (keyDeactivated)="onKeyDeactivated($event)"
-        />
-      </div>
-    }
-  </div>
 </div>

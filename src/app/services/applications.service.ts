@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Observable, throwError, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import {
@@ -7,6 +7,9 @@ import {
   ApplicationsQueryParams,
   PagedApplicationsDTO,
 } from '../models/applications.model';
+import { SKIP_ERROR_NOTIFICATION } from '../tokens/http-context.tokens';
+
+const SILENT = { context: new HttpContext().set(SKIP_ERROR_NOTIFICATION, true) };
 
 @Injectable({ providedIn: 'root' })
 export class ApplicationsService {
@@ -32,7 +35,7 @@ export class ApplicationsService {
     }
 
     return this.http
-      .get<PagedApplicationsDTO>(this.apiUrl, { params: httpParams })
+      .get<PagedApplicationsDTO>(this.apiUrl, { ...SILENT, params: httpParams })
       .pipe(catchError(err => throwError(() => err)));
   }
 
@@ -42,7 +45,7 @@ export class ApplicationsService {
       return of(cached);
     }
     return this.http
-      .get<ApplicationDetailDTO>(`${this.apiUrl}/${id}`)
+      .get<ApplicationDetailDTO>(`${this.apiUrl}/${id}`, SILENT)
       .pipe(
         tap(detail => this.detailCache.set(id, detail)),
         catchError(err => throwError(() => err)),

@@ -1,4 +1,4 @@
-import {
+﻿import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
@@ -27,6 +27,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatDividerModule } from '@angular/material/divider';
 
 import {
   BehaviorSubject,
@@ -38,7 +40,9 @@ import {
   catchError,
   tap,
   startWith,
+  EMPTY,
 } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 import { KeysService } from '../../services/keys.service';
 import { ApplicationsService } from '../../services/applications.service';
@@ -75,6 +79,8 @@ export const DISPLAYED_COLUMNS = [
     MatTooltipModule,
     MatCardModule,
     MatSnackBarModule,
+    MatAutocompleteModule,
+    MatDividerModule,
     KeyDetailComponent,
   ],
   templateUrl: './keys-list.component.html',
@@ -82,50 +88,50 @@ export const DISPLAYED_COLUMNS = [
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class KeysListComponent implements OnInit {
-  // â”€â”€ DI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  private readonly keysService      = inject(KeysService);
-  private readonly appsService      = inject(ApplicationsService);
-  private readonly appSelection     = inject(ApplicationSelectionService);
-  private readonly route            = inject(ActivatedRoute);
-  private readonly router           = inject(Router);
-  private readonly snackBar         = inject(MatSnackBar);
-  private readonly destroyRef       = inject(DestroyRef);
+  // ── DI ───────────────────────────────────────────────────────────────────
+  private readonly keysService  = inject(KeysService);
+  private readonly appsService  = inject(ApplicationsService);
+  private readonly appSelection = inject(ApplicationSelectionService);
+  private readonly route        = inject(ActivatedRoute);
+  private readonly router       = inject(Router);
+  private readonly snackBar     = inject(MatSnackBar);
+  private readonly destroyRef   = inject(DestroyRef);
 
-  // â”€â”€ ViewChild â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  // â”€â”€ Resolved application state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  /** ID rÃ©solu depuis l'URL (/applications/:applicationId/keys) */
-  readonly resolvedAppId = signal<number | null>(null);
-  /** Application chargée depuis l'API ou le service de sélection */
-  readonly application   = signal<ApplicationDTO | null>(null);
+  // ── Application state ────────────────────────────────────────────────────
+  readonly selectedApp   = signal<ApplicationDTO | null>(null);
   readonly appLoading    = signal(false);
+  readonly appSearching  = signal(false);
+  readonly appSuggestions = signal<ApplicationDTO[]>([]);
 
-  // â”€â”€ Breadcrumb â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  readonly breadcrumb = computed(() => {
-    const app = this.application();
-    return {
-      appName: app?.name ?? 'â€¦',
-      appStatus: app?.status ?? '',
-      appId: this.resolvedAppId() ?? 0,
-    };
-  });
+  // ── App search autocomplete control ──────────────────────────────────────
+  readonly appSearchControl = new FormControl<string | ApplicationDTO>('', { nonNullable: true });
 
-  // â”€â”€ Signals (state) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  /** Valeur textuelle de l'autocomplete (toujours string, jamais ApplicationDTO) */
+  get appSearchStr(): string {
+    const v = this.appSearchControl.value;
+    return typeof v === 'string' ? v : (v?.name ?? '');
+  }
+
+  // ── Keys state ───────────────────────────────────────────────────────────
   readonly loading       = signal(false);
   readonly error         = signal<string | null>(null);
   readonly data          = signal<KeysListDTO[]>([]);
   readonly totalElements = signal(0);
   readonly selectedKeyId = signal<number | null>(null);
 
-  // â”€â”€ Table config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  readonly displayedColumns  = [...DISPLAYED_COLUMNS];
-  readonly pageSizeOptions   = [10, 20, 50];
-  readonly defaultPageSize   = 20;
+  /** true quand une app est sélectionnée et les clés peuvent être affichées */
+  readonly hasApp = computed(() => this.selectedApp() !== null);
 
-  // â”€â”€ Reactive controls â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  readonly searchControl = new FormControl<string>('', { nonNullable: true });
+  // ── Keys search control ──────────────────────────────────────────────────
+  readonly keySearchControl = new FormControl<string>('', { nonNullable: true });
+
+  // ── Table config ─────────────────────────────────────────────────────────
+  readonly displayedColumns = [...DISPLAYED_COLUMNS];
+  readonly pageSizeOptions  = [10, 20, 50];
+  readonly defaultPageSize  = 20;
 
   private readonly pagination$ = new BehaviorSubject<{ page: number; size: number }>({
     page: 0,
@@ -133,118 +139,149 @@ export class KeysListComponent implements OnInit {
   });
   private readonly sort$ = new BehaviorSubject<Sort>({ active: '', direction: '' });
 
-  // â”€â”€ Lifecycle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  /** Signal interne pour déclencher le rechargement des clés quand l'app change */
+  private readonly appId$ = new BehaviorSubject<number | null>(null);
+
+  // ── Lifecycle ─────────────────────────────────────────────────────────────
   ngOnInit(): void {
-    // Résoudre l'applicationId depuis l'URL
+    this.initAppSearch();
+    this.initKeysStream();
+
+    // Mode URL : /applications/:applicationId/keys
     const paramId = this.route.snapshot.paramMap.get('applicationId');
     if (paramId) {
       const id = Number(paramId);
-      if (isNaN(id)) {
-        this.snackBar.open('Application introuvable.', 'Fermer', { duration: 4000 });
-        this.router.navigate(['/applications']);
-        return;
-      }
-      this.resolvedAppId.set(id);
-      this.loadApplication(id);
-    } else {
-      // Compatibilité descendante : utiliser le service de sélection
-      const selected = this.appSelection.selectedApp();
-      if (selected) {
-        this.resolvedAppId.set(selected.id);
-        this.application.set(selected);
-      } else {
-        this.snackBar.open('Veuillez sélectionner une application.', 'Fermer', { duration: 4000 });
-        this.router.navigate(['/applications']);
+      if (!isNaN(id)) {
+        this.loadApplicationById(id);
         return;
       }
     }
 
-    // Démarrer le flux de données
-    combineLatest([
-      this.searchControl.valueChanges.pipe(
-        startWith(''),
-        debounceTime(350),
-        distinctUntilChanged()
-      ),
-      this.pagination$,
-      this.sort$,
-    ])
-      .pipe(
-        tap(() => {
-          this.loading.set(true);
-          this.error.set(null);
-        }),
-        switchMap(([name, { page, size }, sortState]) =>
-          this.keysService
-            .getKeys({
-              applicationId: this.resolvedAppId()!,
-              page,
-              size,
-              name: name ?? '',
-              sortField: sortState.active || undefined,
-              sortDir:
-                sortState.direction === 'asc' || sortState.direction === 'desc'
-                  ? sortState.direction
-                  : undefined,
-            })
-            .pipe(
-              catchError((err) => {
-                const msg = err?.error?.message ?? err?.message ?? 'Erreur inattendue.';
-                this.error.set(msg);
-                return of<PagedKeysListDTO>({
-                  content: [],
-                  totalElements: 0,
-                  totalPages: 0,
-                  pageNumber: 0,
-                  pageSize: size,
-                  last: true,
-                });
-              })
-            )
-        ),
-        tap((response) => {
-          this.data.set(response.content);
-          this.totalElements.set(response.totalElements);
-          this.loading.set(false);
-        }),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe();
+    // Mode service de sélection (navigation depuis Applications list)
+    const preselected = this.appSelection.selectedApp();
+    if (preselected) {
+      this.setApplication(preselected);
+    }
+    // Sinon : mode autonome, l'utilisateur cherche lui-même
   }
 
-  // â”€â”€ Navigation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── App autocomplete ──────────────────────────────────────────────────────
+  private initAppSearch(): void {
+    this.appSearchControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(value => {
+        const query = typeof value === 'string' ? value : '';
+        if (query.length < 2) {
+          this.appSuggestions.set([]);
+          return EMPTY;
+        }
+        this.appSearching.set(true);
+        return this.appsService.getApplications({ name: query, size: 10 }).pipe(
+          catchError(() => of({ content: [], totalElements: 0, totalPages: 0, pageNumber: 0, pageSize: 10, last: true }))
+        );
+      }),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(result => {
+      this.appSuggestions.set(result.content ?? []);
+      this.appSearching.set(false);
+    });
+  }
+
+  // ── Keys stream ──────────────────────────────────────────────────────────
+  private initKeysStream(): void {
+    combineLatest([
+      this.appId$.pipe(filter(id => id !== null)),
+      this.keySearchControl.valueChanges.pipe(startWith(''), debounceTime(350), distinctUntilChanged()),
+      this.pagination$,
+      this.sort$,
+    ]).pipe(
+      tap(() => { this.loading.set(true); this.error.set(null); }),
+      switchMap(([appId, name, { page, size }, sortState]) =>
+        this.keysService.getKeys({
+          applicationId: appId!,
+          page,
+          size,
+          name: name ?? '',
+          sortField: sortState.active || undefined,
+          sortDir: sortState.direction === 'asc' || sortState.direction === 'desc'
+            ? sortState.direction : undefined,
+        }).pipe(
+          catchError(err => {
+            this.error.set(err?.error?.message ?? err?.message ?? 'Erreur inattendue.');
+            return of<PagedKeysListDTO>({ content: [], totalElements: 0, totalPages: 0, pageNumber: 0, pageSize: size, last: true });
+          })
+        )
+      ),
+      tap(response => {
+        this.data.set(response.content);
+        this.totalElements.set(response.totalElements);
+        this.loading.set(false);
+      }),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe();
+  }
+
+  // ── Helpers privés ───────────────────────────────────────────────────────
+  private setApplication(app: ApplicationDTO): void {
+    this.selectedApp.set(app);
+    this.appSelection.selectApp(app);
+    this.appSearchControl.setValue(app.name, { emitEvent: false });
+    this.selectedKeyId.set(null);
+    this.pagination$.next({ page: 0, size: this.defaultPageSize });
+    this.appId$.next(app.id);
+  }
+
+  private loadApplicationById(id: number): void {
+    // Cache service d'abord
+    const cached = this.appSelection.getCached(id);
+    if (cached) { this.setApplication(cached); return; }
+
+    this.appLoading.set(true);
+    this.appsService.getApplicationById(id).pipe(
+      catchError(() => of(null)),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(detail => {
+      this.appLoading.set(false);
+      if (detail) {
+        const app: ApplicationDTO = {
+          id: detail.id, name: detail.name, irn: detail.irn,
+          sia: detail.sia, ipn: detail.ipn ?? '',
+          status: detail.status ?? 'Unknown', type: detail.type ?? '',
+          linkedToKeyTemplate: null,
+        };
+        this.setApplication(app);
+      }
+      // Si null (API indisponible ou 404) : on reste en empty state, l'utilisateur cherche lui-même
+    });
+  }
+
+  // ── Autocomplete display ─────────────────────────────────────────────────
+  displayAppFn(value: string | ApplicationDTO): string {
+    return typeof value === 'string' ? value : (value?.name ?? '');
+  }
+
+  onAppSelected(app: ApplicationDTO): void {
+    this.setApplication(app);
+  }
+
+  onAppSearchCleared(): void {
+    this.appSearchControl.setValue('');
+    this.appSuggestions.set([]);
+    this.selectedApp.set(null);
+    this.appSelection.clearSelection();
+    this.data.set([]);
+    this.totalElements.set(0);
+    this.selectedKeyId.set(null);
+    this.appId$.next(null);
+  }
+
+  // ── Navigation ───────────────────────────────────────────────────────────
   goBackToApplications(): void {
     this.router.navigate(['/applications']);
   }
 
-  // â”€â”€ Application loader â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  private loadApplication(id: number): void {
-    // Utiliser d'abord le service de sélection (évite un appel HTTP supplémentaire)
-    const cached = this.appSelection.selectedApp();
-    if (cached && cached.id === id) {
-      this.application.set(cached);
-      return;
-    }
-
-    this.appLoading.set(true);
-    this.appsService.getApplicationById(id).pipe(
-      catchError(() => {
-        this.snackBar.open(`Application ID ${id} introuvable.`, 'Fermer', { duration: 5000 });
-        this.router.navigate(['/applications']);
-        return of(null);
-      }),
-      takeUntilDestroyed(this.destroyRef),
-    ).subscribe(app => {
-      if (app) {
-        // ApplicationDetailDTO â†’ cast partiel vers ApplicationDTO pour le breadcrumb
-        this.application.set({ id: app.id, name: app.name, irn: app.irn, sia: app.sia, ipn: '', status: app.status ?? 'Unknown', type: '', linkedToKeyTemplate: null });
-        this.appSelection.selectApp({ id: app.id, name: app.name, irn: app.irn, sia: app.sia, ipn: '', status: app.status ?? 'Unknown', type: '', linkedToKeyTemplate: null });
-      }
-      this.appLoading.set(false);
-    });
-  }
-
-  // â”€â”€ Event handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Table handlers ───────────────────────────────────────────────────────
   onPageChange(event: PageEvent): void {
     this.pagination$.next({ page: event.pageIndex, size: event.pageSize });
   }
@@ -254,12 +291,12 @@ export class KeysListComponent implements OnInit {
     this.sort$.next(sortState);
   }
 
-  onSearchClear(): void {
-    this.searchControl.reset('');
+  onKeySearchClear(): void {
+    this.keySearchControl.reset('');
   }
 
   onAddKey(): void {
-    alert('Fonctionnalité "Ajouter une clé" Ã  implÃ©menter.');
+    this.snackBar.open('Fonctionnalite "Ajouter une cle" a implementer.', 'OK', { duration: 3000 });
   }
 
   onKeyDeleted(id: number): void {
@@ -267,7 +304,7 @@ export class KeysListComponent implements OnInit {
     this.pagination$.next({ ...this.pagination$.value });
   }
 
-  onKeyDeactivated(id: number): void {
+  onKeyDeactivated(_id: number): void {
     this.pagination$.next({ ...this.pagination$.value });
   }
 
@@ -276,8 +313,9 @@ export class KeysListComponent implements OnInit {
     this.selectedKeyId.set(this.selectedKeyId() === key.id ? null : key.id);
   }
 
-  // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Style helpers ────────────────────────────────────────────────────────
   trackById(_: number, key: KeysListDTO): number { return key.id; }
+  trackByAppId(_: number, app: ApplicationDTO): number { return app.id; }
 
   getStatusColor(status: string): string {
     const map: Record<string, string> = {
@@ -295,12 +333,12 @@ export class KeysListComponent implements OnInit {
     return map[status] ?? 'cert-none';
   }
 
-  getStatusBadgeClass(status: string): string {
+  getAppStatusClass(status: string): string {
     const s = status?.toLowerCase();
-    if (s === 'active')   return 'status--active';
-    if (s === 'pending')  return 'status--pending';
-    if (s === 'inactive') return 'status--inactive';
-    return 'status--unknown';
+    if (s === 'active')   return 'badge--active';
+    if (s === 'pending')  return 'badge--pending';
+    if (s === 'inactive') return 'badge--inactive';
+    if (s === 'draft')    return 'badge--draft';
+    return 'badge--unknown';
   }
 }
-

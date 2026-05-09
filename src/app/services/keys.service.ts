@@ -1,8 +1,11 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { KeyDetailDTO, KeysQueryParams, PagedKeysListDTO } from '../models/keys.model';
+import { SKIP_ERROR_NOTIFICATION } from '../tokens/http-context.tokens';
+
+const SILENT = { context: new HttpContext().set(SKIP_ERROR_NOTIFICATION, true) };
 
 @Injectable({
   providedIn: 'root',
@@ -33,7 +36,7 @@ export class KeysService {
     }
 
     return this.http
-      .get<PagedKeysListDTO>(this.apiUrl, { params: httpParams })
+      .get<PagedKeysListDTO>(this.apiUrl, { ...SILENT, params: httpParams })
       .pipe(catchError((error) => throwError(() => error)));
   }
 
@@ -43,19 +46,19 @@ export class KeysService {
    */
   getKeyById(id: number): Observable<KeyDetailDTO> {
     return this.http
-      .get<KeyDetailDTO>(`${this.apiUrl}/${id}`)
+      .get<KeyDetailDTO>(`${this.apiUrl}/${id}`, SILENT)
       .pipe(catchError((error) => throwError(() => error)));
   }
 
   deleteKey(id: number): Observable<void> {
     return this.http
-      .delete<void>(`${this.apiUrl}/${id}`)
+      .delete<void>(`${this.apiUrl}/${id}`, SILENT)
       .pipe(catchError((error) => throwError(() => error)));
   }
 
   deactivateKey(id: number): Observable<KeyDetailDTO> {
     return this.http
-      .patch<KeyDetailDTO>(`${this.apiUrl}/${id}/deactivate`, {})
+      .patch<KeyDetailDTO>(`${this.apiUrl}/${id}/deactivate`, {}, SILENT)
       .pipe(catchError((error) => throwError(() => error)));
   }
 }
