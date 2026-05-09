@@ -6,6 +6,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { KeysListComponent } from './components/keys-list/keys-list.component';
 import { ApplicationsListComponent } from './components/applications-list/applications-list.component';
+import { EnvBadgeComponent } from './components/env-badge/env-badge.component';
 import {
   TeamSwitcherDialogComponent,
   TeamProfile,
@@ -27,6 +28,7 @@ export type ActivePage = 'keys' | 'applications' | 'certificates';
     MatDialogModule,
     KeysListComponent,
     ApplicationsListComponent,
+    EnvBadgeComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
