@@ -176,3 +176,40 @@ body {
   100% { background-position: -200% 0; }
 }
 
+// ── Snackbar global styles ────────────────────────────────────
+// Applied via panelClass on MatSnackBar
+.kms-snackbar-error,
+.kms-snackbar-success,
+.kms-snackbar-warning {
+  &.mat-mdc-snack-bar-container {
+    --mdc-snackbar-container-shape: 12px;
+    min-width: 340px !important;
+    max-width: 520px !important;
+    margin: 0 0 16px 16px !important;
+
+    .mdc-snackbar__surface {
+      box-shadow: 0 8px 32px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.12) !important;
+      border-radius: 12px !important;
+      padding: 12px 14px !important;
+    }
+  }
+}
+
+.kms-snackbar-error .mdc-snackbar__surface {
+  background: #1a1a2e !important;
+  border: 1px solid rgba(239,68,68,0.35) !important;
+  color: #f8fafc !important;
+}
+
+.kms-snackbar-success .mdc-snackbar__surface {
+  background: #0d1f17 !important;
+  border: 1px solid rgba(34,197,94,0.35) !important;
+  color: #f8fafc !important;
+}
+
+.kms-snackbar-warning .mdc-snackbar__surface {
+  background: #1c1a0d !important;
+  border: 1px solid rgba(234,179,8,0.35) !important;
+  color: #f8fafc !important;
+}
+

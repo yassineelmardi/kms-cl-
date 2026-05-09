@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { switchMap, catchError, of, filter } from 'rxjs';
+import { switchMap, catchError, of, filter, finalize, tap } from 'rxjs';
 
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
@@ -23,6 +23,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 
 import { KeysService } from '../../services/keys.service';
+import { NotificationService } from '../../services/notification.service';
 import { KeyDetailDTO } from '../../models/keys.model';
 
 @Component({
@@ -50,9 +51,10 @@ export class KeyDetailComponent {
   readonly keyDeleted    = output<number>();
   readonly keyDeactivated = output<number>();
 
-  private readonly keysService = inject(KeysService);
-  private readonly destroyRef  = inject(DestroyRef);
-  private readonly dialog      = inject(MatDialog);
+  private readonly keysService   = inject(KeysService);
+  private readonly destroyRef    = inject(DestroyRef);
+  private readonly dialog        = inject(MatDialog);
+  private readonly notif         = inject(NotificationService);
 
   readonly loading      = signal(false);
   readonly error        = signal<string | null>(null);
@@ -121,16 +123,16 @@ export class KeyDetailComponent {
       .subscribe(() => {
         this.deleting.set(true);
         this.keysService.deleteKey(this.keyId())
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe({
-            next: () => {
-              this.deleting.set(false);
+          .pipe(
+            tap(() => this.notif.showSuccess(`Clé "${name}" supprimée avec succès.`)),
+            finalize(() => this.deleting.set(false)),
+            catchError(() => of(null)),
+            takeUntilDestroyed(this.destroyRef)
+          )
+          .subscribe(result => {
+            if (result !== null) {
               this.keyDeleted.emit(this.keyId());
-            },
-            error: err => {
-              this.error.set(err?.error?.message ?? err?.message ?? 'Erreur lors de la suppression.');
-              this.deleting.set(false);
-            },
+            }
           });
       });
   }
@@ -155,18 +157,17 @@ export class KeyDetailComponent {
       .subscribe(() => {
         this.deactivating.set(true);
         this.keysService.deactivateKey(this.keyId())
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe({
-            next: updated => {
+          .pipe(
+            tap(updated => {
               this.detail.set(updated);
-              this.deactivating.set(false);
+              this.notif.showSuccess(`Clé "${name}" désactivée avec succès.`);
               this.keyDeactivated.emit(this.keyId());
-            },
-            error: err => {
-              this.error.set(err?.error?.message ?? err?.message ?? 'Erreur lors de la désactivation.');
-              this.deactivating.set(false);
-            },
-          });
+            }),
+            finalize(() => this.deactivating.set(false)),
+            catchError(() => of(null)),
+            takeUntilDestroyed(this.destroyRef)
+          )
+          .subscribe();
       });
   }
 }
